@@ -20,6 +20,7 @@
   "author": "Tomkoid",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^16.3.1",
     "nodemon": "^3.0.1",
     "strava-cz-sdk": "^0.2.2",
     "ts-node": "^10.9.1",

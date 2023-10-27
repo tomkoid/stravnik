@@ -21,7 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "nodemon": "^3.0.1",
-    "strava-cz-sdk": "^0.2.1",
+    "strava-cz-sdk": "^0.2.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }

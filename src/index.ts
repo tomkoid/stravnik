@@ -23,8 +23,16 @@ const accessToken: string = process.env.ACCESS_TOKEN;
 export const listenMode: boolean = process.env.LISTEN_MODE == "true";
 export const roomId: string = process.env.ROOM_ID!;
 
+export const currentDate = new Date();
+
 const storage = new SimpleFsStorageProvider("stravnik-bot.json");
 const client = new MatrixClient(homeserverUrl, accessToken, storage);
+
+export const stravaDate = currentDate.toLocaleDateString("cs-CZ", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+}).replaceAll(" ", "");
 
 AutojoinRoomsMixin.setupOnClient(client);
 

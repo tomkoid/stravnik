@@ -1,8 +1,8 @@
 import { getPublicMenu } from "strava-cz-sdk";
+import { stravaDate } from ".";
 
 export async function getMessage(): Promise<string> {
   const json: any = await getPublicMenu(process.env.CANTEEN_NUMBER!);
-  // console.log(json)
 
   let meals: any[] = [];
   for (const item in json) {
@@ -11,7 +11,7 @@ export async function getMessage(): Promise<string> {
     for (const meal in json[item]) {
       if (json[item][meal].length === 0) continue;
 
-      if (json[item][meal]["datum"] == "30.11.2023") {
+      if (json[item][meal]["datum"] == stravaDate) {
         meals.push(json[item][meal]);
       }
     }
@@ -23,8 +23,10 @@ export async function getMessage(): Promise<string> {
     return `${meal["id"] + 1}. ${meal["nazev"]}`
   })
 
-  const introMessage = `Obědy pro ${meals[0]["datum"]}:`
-  const message = [introMessage, `${"#".repeat(introMessage.length)}`, messageMeals.join('\n')].join('\n');
+  const mealsMessage = meals.length !== 0 ? messageMeals.join('\n') : "Žádné obědy nenalezeny!";
+
+  const introMessage = `Obědy pro ${stravaDate}:`
+  const message = [introMessage, `${"#".repeat(introMessage.length)}`, mealsMessage].join('\n');
 
   return message
 }

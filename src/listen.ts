@@ -1,13 +1,12 @@
 import { MatrixClient } from "matrix-bot-sdk";
-import { listenMode } from ".";
 import { getMessage } from "./meals";
 
 export async function listenBot(client: MatrixClient) {
   // Before we start the bot, register our command handler
-  if (listenMode) client.on("room.message", handleCommand);
+  client.on("room.message", handleCommand);
 
   // Now that everything is set up, start the bot. This will start the sync loop and run until killed.
-  if (listenMode) client.start().then(() => console.log("Bot started!"));
+  client.start().then(() => console.log("Bot started!"));
 
   // This is the command handler we registered a few lines up
   async function handleCommand(roomId: string, event: any) {

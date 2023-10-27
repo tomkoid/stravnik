@@ -28,5 +28,5 @@ const client = new MatrixClient(homeserverUrl, accessToken, storage);
 
 AutojoinRoomsMixin.setupOnClient(client);
 
-sendMealMessage(client, roomId);
-listenBot(client);
+if (!listenMode) sendMealMessage(client, roomId);
+if (listenMode) listenBot(client);

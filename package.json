@@ -1,7 +1,7 @@
 {
   "name": "stravnik",
   "version": "1.0.0",
-  "description": "Matrix bot, which periodically gets meal list from defined canteen",
+  "description": "Get today's meal list from a defined canteen and post it on Matrix",
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

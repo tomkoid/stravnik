@@ -24,6 +24,7 @@ export const listenMode: boolean = process.env.LISTEN_MODE == "true";
 export const roomId: string = process.env.ROOM_ID!;
 
 export const currentDate = new Date();
+// export const currentDate = new Date("2023-11-13");
 
 const storage = new SimpleFsStorageProvider("stravnik-bot.json");
 const client = new MatrixClient(homeserverUrl, accessToken, storage);

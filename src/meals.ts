@@ -20,13 +20,22 @@ export async function getMessage(): Promise<string> {
   console.log(meals);
 
   const messageMeals = meals.map((meal) => {
-    return `${meal["id"] + 1}. ${meal["nazev"]}`
+    const searchParams = new URLSearchParams({
+      "q": meal["nazev"].normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+      "tbm": "isch" // image search
+    })
+
+    return `<p>${meal["id"] + 1}. ${meal["nazev"]} - <a href="https://www.google.com/search?${searchParams}">obrázek</a></p>`
   })
+
+  if (meals.length == 0) {
+    return "empty"
+  }
 
   const mealsMessage = meals.length !== 0 ? messageMeals.join('\n') : "Žádné obědy nenalezeny!";
 
   const introMessage = `Obědy pro ${stravaDate}:`
-  const message = [introMessage, `${"#".repeat(introMessage.length)}`, mealsMessage].join('\n');
+  const message = [introMessage, `<p>${"#".repeat(introMessage.length)}</p>`, mealsMessage].join('\n');
 
   return message
 }

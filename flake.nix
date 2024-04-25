@@ -15,12 +15,9 @@
         devShells.default = pkgs.mkShell
           {
             buildInputs = with pkgs; [
-              nodejs_20
+              cargo
+              rustc
             ];
-
-            shellHook = ''
-              npm install
-            '';
           };
       }
     );

@@ -1,3 +1,5 @@
 /node_modules
 /.env
 /stravnik-bot.json
+/save.json
+/target

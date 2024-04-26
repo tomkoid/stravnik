@@ -7,36 +7,6 @@ use matrix_sdk::{
     config::SyncSettings, matrix_auth::MatrixSession, ruma::RoomId, Client, RoomState,
 };
 
-// async fn on_stripped_state_member(
-//     room_member: StrippedRoomMemberEvent,
-//     client: Client,
-//     room: Room,
-// ) {
-//     if room_member.state_key != client.user_id().unwrap() {
-//         return;
-//     }
-//
-//     tokio::spawn(async move {
-//         println!("Autojoining room {}", room.room_id());
-//
-//         let mut delay = 2;
-//
-//         while let Err(e) = room.join().await {
-//             eprintln!("Error joining room: {}", e);
-//
-//             sleep(Duration::from_secs(delay)).await;
-//             delay *= 2;
-//
-//             if delay > 3600 {
-//                 eprintln!("Aborting");
-//                 break;
-//             }
-//         }
-//
-//         println!("Joined room {}", room.room_id());
-//     });
-// }
-
 async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
     let client = Client::builder()
         .homeserver_url(credentials.homeserver)
@@ -74,8 +44,6 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
 
     info!("sync: Sync done!");
 
-    // client.add_event_handler(on_room_message);
-
     let room_string = std::env::var("MATRIX_ROOM").expect("Missing MATRIX_ROOM");
 
     let room = client
@@ -102,7 +70,6 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
     let content = meals::get_meal_message_content().await;
 
     if content.is_err() {
-        // println!("Error: {}", content.as_ref().unwrap_err());
         return Err(anyhow::anyhow!("{}", content.unwrap_err()));
     }
 
@@ -117,47 +84,24 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
 
     info!("Sent message to room {}", room.room_id());
 
-    // let settings = SyncSettings::default().token("syt_c3RyYXZuaWtib3Q_llklsSAlrQPGqKKUnSPY_0merLB");
-
-    // let settings = SyncSettings::default().token(sync_token);
     // final sync
     client.sync_once(SyncSettings::default()).await?;
-    //
+
     Ok(())
 }
-
-// async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
-//     if room.state() != RoomState::Joined {
-//         return;
-//     }
-//
-//     let MessageType::Text(text_content) = event.content.msgtype else {
-//         return;
-//     };
-//
-//     if text_content.body == "!join" {
-//         // let content = RoomMessageEventContent::text_plain("lol");
-//         let content = meals::get_meal_message_content().await;
-//
-//         if content.is_err() {
-//             println!("Error: {}", content.unwrap_err());
-//             return;
-//         }
-//
-//         room.send(content.unwrap()).await.unwrap();
-//
-//         println!("Sent message to room {}", room.room_id());
-//     }
-// }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     pretty_env_logger::init();
     dotenv::dotenv().ok();
 
-    let credentials = credentials::init_credentials()?;
+    let credentials = credentials::init_credentials();
 
-    login_and_sync(credentials).await?;
+    if credentials.is_err() {
+        return Err(anyhow::anyhow!("{:?}", credentials.unwrap_err()));
+    }
+
+    login_and_sync(credentials?).await?;
 
     Ok(())
 }

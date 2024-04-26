@@ -80,12 +80,12 @@ pub async fn get_meal_message_content() -> anyhow::Result<RoomMessageEventConten
 
     // if meal found, format it
     let text = format!(
-        "Obědy pro {}\n1. {}\n2. {}\n3. {}",
+        "### Obědy pro **{}**:\n1. {}\n2. {}\n3. {}",
         today_meals[0]["datum"].as_str().unwrap(),
         today_meals[0]["nazev"].as_str().unwrap(),
         today_meals[1]["nazev"].as_str().unwrap(),
         today_meals[2]["nazev"].as_str().unwrap()
     );
 
-    Ok(RoomMessageEventContent::text_plain(text))
+    Ok(RoomMessageEventContent::text_markdown(text))
 }

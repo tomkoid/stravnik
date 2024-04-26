@@ -1,9 +1,8 @@
 mod credentials;
-mod logger;
 mod meals;
 
 use credentials::Credentials;
-use log::{error, info, log, trace};
+use log::info;
 use matrix_sdk::{
     config::SyncSettings, matrix_auth::MatrixSession, ruma::RoomId, Client, RoomState,
 };
@@ -71,11 +70,7 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
     }
 
     info!("sync: Syncing...");
-    client
-        .sync_once(SyncSettings::default())
-        .await
-        .unwrap()
-        .next_batch;
+    client.sync_once(SyncSettings::default()).await.unwrap();
 
     info!("sync: Sync done!");
 
@@ -126,7 +121,7 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
 
     // let settings = SyncSettings::default().token(sync_token);
     // final sync
-    client.sync_once(SyncSettings::default()).await?.next_batch;
+    client.sync_once(SyncSettings::default()).await?;
     //
     Ok(())
 }
@@ -157,7 +152,7 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    logger::init_logger();
+    pretty_env_logger::init();
     dotenv::dotenv().ok();
 
     let credentials = credentials::init_credentials()?;

@@ -4,21 +4,22 @@ Get today's meal list from strava.cz and post it on Matrix
 
 ## Installation and usage 
 
-You need to have Node.js or Bun installed on your system and also you need to have a Matrix account and a room to post to.
+You need to have Rust installed installed on your system if you want to build the package yourself.
+
+You need to have a Matrix account, a room to post to and a strava.cz canteen number.
 
 ```bash
-git clone https://codeberg.org/Tomkoid/stravnik # clone the repo
+git clone https://codeberg.org/tomkoid/stravnik # clone the repo
 cd stravnik # go to the repo directory
-npm install # install node dependencies (or bun install if you use bun)
+cargo run # install node dependencies (or bun install if you use bun)
 ```
 
 Then you need to create an environment file (.env). You can use the example config file as a template.
 
 ```bash
-HOMESERVER=https://matrix.org
-ACCESS_TOKEN=YOUR_ACCESS_TOKEN
-ROOM_ID=YOUR_ROOM_ID
-CANTEEN_NUMBER=0000
+MATRIX_HOMESERVER=https://matrix.org
+MATRIX_USERNAME=yourmatrixusername
+MATRIX_PASSWORD=yourmatrixpassword
+MATRIX_ROOM=!matrix_room:matrix_host
+STRAVA_CANTEEN=0000
 ```
-
-Then you can compile the TypeScript code and run the bot with `node src/index.js` or just run `bun run src/index.ts` if you use Bun.

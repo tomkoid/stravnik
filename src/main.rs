@@ -1,7 +1,9 @@
 mod credentials;
+mod logger;
 mod meals;
 
 use credentials::Credentials;
+use log::{error, info, log, trace};
 use matrix_sdk::{
     config::SyncSettings, matrix_auth::MatrixSession, ruma::RoomId, Client, RoomState,
 };
@@ -57,8 +59,8 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
             .await?;
     }
 
-    println!("Logged in as {}", client.user_id().unwrap());
-    println!("Access token: {}", client.access_token().unwrap());
+    info!("auth: Logged in as {}", client.user_id().unwrap());
+    info!("auth: Access token: {}", client.access_token().unwrap());
 
     // write access token to file
     if auth.session().is_some() {
@@ -68,11 +70,14 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
         std::fs::write("save.json", response)?;
     }
 
+    info!("sync: Syncing...");
     client
         .sync_once(SyncSettings::default())
         .await
         .unwrap()
         .next_batch;
+
+    info!("sync: Sync done!");
 
     // client.add_event_handler(on_room_message);
 
@@ -115,7 +120,7 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
         ));
     }
 
-    println!("Sent message to room {}", room.room_id());
+    info!("Sent message to room {}", room.room_id());
 
     // let settings = SyncSettings::default().token("syt_c3RyYXZuaWtib3Q_llklsSAlrQPGqKKUnSPY_0merLB");
 
@@ -152,6 +157,7 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    logger::init_logger();
     dotenv::dotenv().ok();
 
     let credentials = credentials::init_credentials()?;

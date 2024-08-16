@@ -6,8 +6,6 @@ pub const MATRIX_HOMESERVER_DEFAULT: &str = "https://matrix.org";
 pub const STRAVA_CANTEEN_DEFAULT: &str = "0000";
 
 pub fn init_env() {
-    dotenv::dotenv().ok();
-
     let homeserver = std::env::var("MATRIX_HOMESERVER").unwrap_or(String::new());
     let username = std::env::var("MATRIX_USERNAME").unwrap_or(String::new());
     let password = std::env::var("MATRIX_PASSWORD").unwrap_or(String::new());
@@ -18,7 +16,7 @@ pub fn init_env() {
     if homeserver.is_empty() {
         info!(
             "No homeserver specified, defaulting to default: {}",
-            homeserver
+            MATRIX_HOMESERVER_DEFAULT
         );
         std::env::set_var("MATRIX_HOMESERVER", MATRIX_HOMESERVER_DEFAULT);
     }

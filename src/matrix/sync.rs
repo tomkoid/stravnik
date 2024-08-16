@@ -1,4 +1,4 @@
-use crate::credentials::Credentials;
+use crate::credentials::MatrixCredentials;
 use crate::meals;
 
 use log::info;
@@ -6,7 +6,7 @@ use matrix_sdk::{
     config::SyncSettings, matrix_auth::MatrixSession, ruma::RoomId, Client, RoomState,
 };
 
-pub async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
+pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<()> {
     let client = Client::builder()
         .homeserver_url(credentials.homeserver)
         .build()
@@ -84,6 +84,9 @@ pub async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
     }
 
     info!("Sent message to room {}", room.room_id());
+
+    // doing final sync
+    info!("Doing final sync...");
 
     // final sync
     client.sync_once(SyncSettings::default()).await?;

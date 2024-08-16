@@ -35,7 +35,7 @@ async fn get_meals() -> Result<serde_json::Value, reqwest::Error> {
     Ok(json)
 }
 
-pub async fn get_meal_message_content() -> anyhow::Result<RoomMessageEventContent> {
+pub async fn get_meal_data() -> anyhow::Result<String> {
     // get today's date
     let date_today = Local::now();
     let date = format!(
@@ -53,10 +53,7 @@ pub async fn get_meal_message_content() -> anyhow::Result<RoomMessageEventConten
     info!("Got meals!");
 
     if meals.is_err() {
-        return Ok(RoomMessageEventContent::text_plain(format!(
-            "Error: {:?}",
-            meals.unwrap_err()
-        )));
+        return Ok(format!("Error: {:?}", meals.unwrap_err()));
     }
 
     let meals = &meals.unwrap();
@@ -91,5 +88,9 @@ pub async fn get_meal_message_content() -> anyhow::Result<RoomMessageEventConten
         text = format!("{}{}. {}\n", text, index, meal["nazev"].as_str().unwrap());
     }
 
-    Ok(RoomMessageEventContent::text_markdown(text))
+    Ok(text)
+}
+
+pub fn fmt_meal_data_matrix(text: String) -> RoomMessageEventContent {
+    RoomMessageEventContent::text_markdown(text)
 }

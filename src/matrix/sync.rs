@@ -66,15 +66,17 @@ pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<()
         println!("Joined to the room! ({:?})", room.state());
     }
 
-    let content = meals::get_meal_message_content().await;
+    let meal_data = meals::get_meal_data().await;
 
-    if content.is_err() {
-        return Err(anyhow::anyhow!("{}", content.unwrap_err()));
+    if meal_data.is_err() {
+        return Err(anyhow::anyhow!("{}", meal_data.unwrap_err()));
     }
+
+    let content = meals::fmt_meal_data_matrix(meal_data?);
 
     info!("Sending message to room {}...", room.room_id());
 
-    let room_send_status = room.send(content.unwrap()).await;
+    let room_send_status = room.send(content).await;
 
     if room_send_status.is_err() {
         return Err(anyhow::anyhow!(

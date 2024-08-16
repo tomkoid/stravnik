@@ -8,7 +8,11 @@ use crate::sync::login_and_sync;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    pretty_env_logger::init();
+    // setup logger
+    pretty_env_logger::formatted_builder()
+        .filter_level(log::LevelFilter::Info)
+        .init();
+
     init_env(); // initialize environment variables and error if some are missing
 
     let credentials = credentials::init_credentials();

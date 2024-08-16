@@ -72,6 +72,8 @@ pub async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
         return Err(anyhow::anyhow!("{}", content.unwrap_err()));
     }
 
+    info!("Sending message to room {}...", room.room_id());
+
     let room_send_status = room.send(content.unwrap()).await;
 
     if room_send_status.is_err() {

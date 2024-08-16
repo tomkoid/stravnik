@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use chrono::{Datelike, Local};
-use log::info;
+use log::{debug, info};
 use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
 use serde::Serialize;
 
@@ -45,8 +45,12 @@ pub async fn get_meal_message_content() -> anyhow::Result<RoomMessageEventConten
         date_today.year()
     );
 
+    info!("Getting meals from API...");
+
     // get meals from API
     let meals = get_meals().await;
+
+    info!("Got meals!");
 
     if meals.is_err() {
         return Ok(RoomMessageEventContent::text_plain(format!(
@@ -63,7 +67,7 @@ pub async fn get_meal_message_content() -> anyhow::Result<RoomMessageEventConten
         for (_, meal) in table.as_object().unwrap() {
             if meal[0]["datum"].as_str().unwrap() == date {
                 today_meals = meal.clone();
-                info!("Found meal: {}", meal);
+                debug!("Found meal: {}", meal);
                 break;
             };
         }

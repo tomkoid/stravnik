@@ -1,7 +1,9 @@
 mod credentials;
+mod env;
 mod meals;
 
 use credentials::Credentials;
+use env::init_env;
 use log::info;
 use matrix_sdk::{
     config::SyncSettings, matrix_auth::MatrixSession, ruma::RoomId, Client, RoomState,
@@ -93,7 +95,7 @@ async fn login_and_sync(credentials: Credentials) -> anyhow::Result<()> {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     pretty_env_logger::init();
-    dotenv::dotenv().ok();
+    init_env(); // initialize environment variables and error if some are missing
 
     let credentials = credentials::init_credentials();
 

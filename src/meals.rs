@@ -17,7 +17,7 @@ async fn get_meals() -> Result<serde_json::Value, reqwest::Error> {
     let client = reqwest::Client::new();
 
     let payload = RequestPayload {
-        cislo: std::env::var("STRAVA_CANTEEN").unwrap_or("0000".to_string()),
+        cislo: std::env::var("STRAVA_CANTEEN").unwrap(),
         ignore_cert: false,
         lang: "EN".to_string(),
         s5url: "".to_string(),

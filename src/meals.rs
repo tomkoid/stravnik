@@ -78,14 +78,18 @@ pub async fn get_meal_message_content() -> anyhow::Result<RoomMessageEventConten
         return Err(anyhow!("Today's meal not found"));
     }
 
+    debug!("MEALS len: {}", today_meals.as_array().unwrap().len());
+
     // if meal found, format it
-    let text = format!(
-        "### Obědy pro **{}**:\n1. {}\n2. {}\n3. {}",
+    let mut text = format!(
+        "### Obědy pro **{}**:\n",
         today_meals[0]["datum"].as_str().unwrap(),
-        today_meals[0]["nazev"].as_str().unwrap(),
-        today_meals[1]["nazev"].as_str().unwrap(),
-        today_meals[2]["nazev"].as_str().unwrap()
     );
+
+    let index = 1;
+    for meal in today_meals.as_array().unwrap() {
+        text = format!("{}{}. {}\n", text, index, meal["nazev"].as_str().unwrap());
+    }
 
     Ok(RoomMessageEventContent::text_markdown(text))
 }

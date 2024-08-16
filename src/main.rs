@@ -1,14 +1,19 @@
 use log::info;
+use meals::get_meal_data;
 use services::get_notification_services;
 
 mod credentials;
+mod env;
 mod matrix;
 mod meals;
+mod ntfy;
 mod services;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
+
+    env::init_env(); // setup environment variables needed for any service
 
     // setup logger
     pretty_env_logger::formatted_builder()
@@ -37,8 +42,11 @@ async fn main() -> anyhow::Result<()> {
                 matrix::sync::login_and_sync(credentials?).await?;
             }
             services::Service::Ntfy => {
-                info!("Sending notification to ntfy...");
-                // ntfy::send_notification().await?;
+                ntfy::env::init_env();
+
+                let meal_data = get_meal_data().await?;
+
+                ntfy::send::send_notification(meal_data).await?;
             }
         }
     }

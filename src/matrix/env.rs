@@ -2,16 +2,13 @@ use std::process::exit;
 
 use log::{error, info};
 
-pub const MATRIX_HOMESERVER_DEFAULT: &str = "https://matrix.org";
-pub const STRAVA_CANTEEN_DEFAULT: &str = "0000";
+const MATRIX_HOMESERVER_DEFAULT: &str = "https://matrix.org";
 
 pub fn init_env() {
     let homeserver = std::env::var("MATRIX_HOMESERVER").unwrap_or(String::new());
     let username = std::env::var("MATRIX_USERNAME").unwrap_or(String::new());
     let password = std::env::var("MATRIX_PASSWORD").unwrap_or(String::new());
     let room = std::env::var("MATRIX_ROOM").unwrap_or(String::new());
-
-    let strava_canteen = std::env::var("STRAVA_CANTEEN").unwrap_or(String::new());
 
     if homeserver.is_empty() {
         info!(
@@ -29,13 +26,5 @@ pub fn init_env() {
     if room.is_empty() {
         error!("Missing matrix room id (MATRIX_ROOM)");
         exit(1);
-    }
-
-    if strava_canteen.is_empty() {
-        info!(
-            "Missing strava canteen id (STRAVA_CANTEEN), defaulting to {}",
-            STRAVA_CANTEEN_DEFAULT
-        );
-        std::env::set_var("STRAVA_CANTEEN", STRAVA_CANTEEN_DEFAULT);
     }
 }

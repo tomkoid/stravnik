@@ -83,9 +83,10 @@ pub async fn get_meal_data() -> anyhow::Result<String> {
         today_meals[0]["datum"].as_str().unwrap(),
     );
 
-    let index = 1;
+    let mut index = 1;
     for meal in today_meals.as_array().unwrap() {
         text = format!("{}{}. {}\n", text, index, meal["nazev"].as_str().unwrap());
+        index += 1;
     }
 
     Ok(text)

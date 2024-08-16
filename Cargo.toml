@@ -11,7 +11,7 @@ chrono = "0.4.38"
 clap = { version = "4.5.16", features = ["derive"] }
 dotenv = "0.15.0"
 log = "0.4.21"
-matrix-sdk = {version = "0.7.1", features = ["markdown"]}
+matrix-sdk = { version = "0.7.1", features = ["markdown"] }
 pretty_env_logger = "0.5.0"
 reqwest = "0.12.4"
 serde = { version = "1.0.198", features = ["derive"] }

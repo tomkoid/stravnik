@@ -1,7 +1,8 @@
-use log::info;
+use args::Args;
+use clap::Parser;
 use meals::get_meal_data;
-use services::get_notification_services;
 
+mod args;
 mod credentials;
 mod env;
 mod matrix;
@@ -11,6 +12,8 @@ mod services;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
     dotenv::dotenv().ok();
 
     env::init_env(); // setup environment variables needed for any service
@@ -20,34 +23,24 @@ async fn main() -> anyhow::Result<()> {
         .filter_level(log::LevelFilter::Info)
         .init();
 
-    // get notification services for notifications to send
-    let services = get_notification_services();
+    match args.service {
+        services::Service::Matrix => {
+            matrix::env::init_env(); // initialize environment variables and error if some are missing
 
-    if services.is_empty() {
-        info!("No notification services enabled, please enable at least one in `.env` and try again, exiting...");
-        return Ok(());
-    }
+            let credentials = credentials::init_matrix_credentials();
 
-    for service in services {
-        match service {
-            services::Service::Matrix => {
-                matrix::env::init_env(); // initialize environment variables and error if some are missing
-
-                let credentials = credentials::init_matrix_credentials();
-
-                if credentials.is_err() {
-                    return Err(anyhow::anyhow!("{:?}", credentials.unwrap_err()));
-                }
-
-                matrix::sync::login_and_sync(credentials?).await?;
+            if credentials.is_err() {
+                return Err(anyhow::anyhow!("{:?}", credentials.unwrap_err()));
             }
-            services::Service::Ntfy => {
-                ntfy::env::init_env();
 
-                let meal_data = get_meal_data().await?;
+            matrix::sync::login_and_sync(credentials?).await?;
+        }
+        services::Service::Ntfy => {
+            ntfy::env::init_env();
 
-                ntfy::send::send_notification(meal_data).await?;
-            }
+            let meal_data = get_meal_data().await?;
+
+            ntfy::send::send_notification(meal_data).await?;
         }
     }
 

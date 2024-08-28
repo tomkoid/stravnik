@@ -1,0 +1,2 @@
+assets/stravnik.jpg filter=lfs diff=lfs merge=lfs -text
+assets/stravnik.svg filter=lfs diff=lfs merge=lfs -text

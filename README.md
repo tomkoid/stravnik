@@ -1,8 +1,8 @@
 <img src="https://codeberg.org/tomkoid/stravnik/media/branch/main/assets/stravnik.jpg" alt="stravnik logo" width="200"/>
 
-# Stravnik (Matrix bot)
+# Strávník
 
-Get today's meal list from strava.cz and send notification of it on Matrix
+Get today's meal list from strava.cz and send notification of it on Matrix or other supported notification services.
 
 ## Installation and usage 
 
@@ -17,3 +17,10 @@ cargo run # compile rust app
 ```
 
 Then you need to create an environment file (.env). You can use the example config file from `env.example`.
+
+## Supported notification services
+
+This project is very small and only support these two notification services:
+
+- [Matrix](https://matrix.org/)
+- [Ntfy](https://ntfy.sh/)

@@ -20,7 +20,7 @@ Then you need to create an environment file (.env). You can use the example conf
 
 ## Supported notification services
 
-This project is very small and only support these two notification services:
+This project is very small and only supports these two notification services:
 
 - [Matrix](https://matrix.org/)
 - [Ntfy](https://ntfy.sh/)

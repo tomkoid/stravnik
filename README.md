@@ -1,3 +1,5 @@
+![stravnik logo](https://codeberg.org/tomkoid/stravnik/media/branch/main/assets/stravnik.jpg)
+
 # Stravnik (Matrix bot)
 
 Get today's meal list from strava.cz and send notification of it on Matrix

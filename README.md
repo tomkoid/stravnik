@@ -1,4 +1,4 @@
-![stravnik logo](https://codeberg.org/tomkoid/stravnik/media/branch/main/assets/stravnik.jpg)
+<img src="https://codeberg.org/tomkoid/stravnik/media/branch/main/assets/stravnik.jpg" alt="stravnik logo" width="200"/>
 
 # Stravnik (Matrix bot)
 

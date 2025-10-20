@@ -12,7 +12,7 @@ struct RequestPayload {
     s5url: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct S4PolozkyRequest {
     cislo: String,
     lang: String,
@@ -42,12 +42,13 @@ impl StravaClient {
         let req_payload = S4PolozkyRequest {
             cislo: self.canteen_id.clone(),
             lang: "EN".to_string(),
-            polozky: "V_NAZEV,V_ULICE,V_MESTO,V_PSC,V_TELEFON,V_UCET,V_EMAIL,V_URL,DATCAS_AKT,VERZE,URLWSDL_S-URL,GPSDELKA,GPSSIRKA,IGN_CERT,TEXT_ANON,LOGO".to_string(),
+            polozky: "URLWSDL_S-URL".to_string(),
         };
+        debug!("S4 Polozky request payload: {:?}", req_payload);
         let request = self
             .client
             .post("https://app.strava.cz/api/s4Polozky")
-            .header("Content-Type", "application/json")
+            .header("Content-Type", "text/plain;charset=UTF-8")
             .body(serde_json::to_string(&req_payload).unwrap())
             .send()
             .await
@@ -55,7 +56,7 @@ impl StravaClient {
 
         let json: serde_json::Value = serde_json::from_str(&request.text().await.unwrap()).unwrap();
 
-        self.s5url = Some(json["s5url"].as_str().unwrap().to_string());
+        self.s5url = Some(json["urlwsdl_s"][0].as_str().unwrap().to_string());
     }
 
     pub async fn get_meal_data(&self) -> anyhow::Result<String> {
@@ -88,7 +89,15 @@ impl StravaClient {
 
         // for every table in the response
         for table in meals_array {
-            for (_, meal) in table.as_object().unwrap() {
+            let table_obj = match table.as_object() {
+                Some(o) => o,
+                None => {
+                    debug!("failed to parse this table: {}", table);
+                    continue;
+                }
+            };
+
+            for (_, meal) in table_obj {
                 if meal[0]["datum"].as_str().unwrap() == date {
                     today_meals = meal.clone();
                     debug!("Found meal: {}", meal);
@@ -112,11 +121,20 @@ impl StravaClient {
 
         let mut index = 1;
         for meal in today_meals.as_array().unwrap() {
-            text = format!("{}{}. {}\n", text, index, meal["nazev"].as_str().unwrap());
+            let druh_chod = meal["druh_chod"].as_str().unwrap().trim();
+            let druh_chod_string = format!("[{}]", druh_chod);
+
+            text = format!(
+                "{}{}. *{}* {}\n",
+                text,
+                index,
+                druh_chod_string,
+                meal["nazev"].as_str().unwrap()
+            );
             index += 1;
         }
 
-        Ok(text)
+        Ok(text.trim().to_string())
     }
 
     async fn get_meals(&self) -> anyhow::Result<serde_json::Value> {

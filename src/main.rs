@@ -44,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
 
             let client = matrix::sync::login_and_sync(credentials?).await?;
             matrix::message::send_meal_data(&client, meal_data).await?;
-            matrix::sync::final_sync(&client).await?;
+            matrix::sync::client_sync(&client).await?; // do a final sync
         }
         services::Service::Ntfy => {
             ntfy::env::init_env();

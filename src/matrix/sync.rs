@@ -35,20 +35,14 @@ pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<Cl
         std::fs::write("save.json", response)?;
     }
 
-    info!("sync: Syncing...");
-    client.sync_once(SyncSettings::default()).await.unwrap();
-
-    info!("sync: Sync done!");
-
+    client_sync(&client).await?;
     Ok(client)
 }
 
-pub async fn final_sync(client: &Client) -> anyhow::Result<()> {
-    // doing final sync
-    info!("Doing final sync...");
-
-    // final sync
+pub async fn client_sync(client: &Client) -> anyhow::Result<()> {
+    info!("sync: syncing client...");
     client.sync_once(SyncSettings::default()).await?;
+    info!("sync: sync done...");
 
     Ok(())
 }

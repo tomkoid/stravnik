@@ -1,10 +1,7 @@
-use crate::matrix::fmt;
-use crate::{credentials::MatrixCredentials, meals::StravaClient};
+use crate::credentials::MatrixCredentials;
 
 use log::info;
-use matrix_sdk::{
-    config::SyncSettings, matrix_auth::MatrixSession, ruma::RoomId, Client, RoomState,
-};
+use matrix_sdk::{config::SyncSettings, matrix_auth::MatrixSession, Client};
 
 pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<Client> {
     let client = Client::builder()

@@ -1,7 +1,7 @@
 use log::info;
 use matrix_sdk::{ruma::RoomId, Client, RoomState};
 
-use crate::{matrix::fmt, meals::StravaClient};
+use crate::matrix::fmt;
 
 pub async fn send_meal_data(client: &Client, meal_data: String) -> anyhow::Result<()> {
     let room_string = std::env::var("MATRIX_ROOM").expect("Missing MATRIX_ROOM");

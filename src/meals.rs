@@ -59,8 +59,17 @@ pub async fn get_meal_data() -> anyhow::Result<String> {
     let meals = &meals.unwrap();
     let mut today_meals: serde_json::Value = serde_json::Value::Null;
 
+    let meals_array = if let Some(ma) = meals.as_array() {
+        ma
+    } else {
+        return Err(anyhow!(
+            "Failed to parse meals, response from Strava API invalid: {}",
+            meals
+        ));
+    };
+
     // for every table in the response
-    for table in meals.as_array().unwrap() {
+    for table in meals_array {
         for (_, meal) in table.as_object().unwrap() {
             if meal[0]["datum"].as_str().unwrap() == date {
                 today_meals = meal.clone();

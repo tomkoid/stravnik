@@ -6,7 +6,7 @@ use matrix_sdk::{
     config::SyncSettings, matrix_auth::MatrixSession, ruma::RoomId, Client, RoomState,
 };
 
-pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<()> {
+pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<Client> {
     let client = Client::builder()
         .homeserver_url(credentials.homeserver)
         .build()
@@ -43,57 +43,10 @@ pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<()
 
     info!("sync: Sync done!");
 
-    let room_string = std::env::var("MATRIX_ROOM").expect("Missing MATRIX_ROOM");
+    Ok(client)
+}
 
-    let room = client.get_room(<&RoomId>::try_from(room_string.as_str()).unwrap());
-
-    let room = if let Some(room) = room {
-        room
-    } else {
-        return Err(anyhow::anyhow!("Room not found"));
-    };
-
-    // if room is not joined
-    if room.state() != RoomState::Joined {
-        eprintln!(
-            "The bot is not joined to the room ({:?}). Trying to join...",
-            room.state()
-        );
-        let result = room.join().await;
-        if result.is_err() {
-            return Err(anyhow::anyhow!(
-                "Error joining room: {}",
-                result.unwrap_err()
-            ));
-        }
-
-        println!("Joined to the room! ({:?})", room.state());
-    }
-
-    let mut sc = StravaClient::new();
-    sc.fetch_s5url().await;
-
-    let meal_data = sc.get_meal_data().await;
-
-    if meal_data.is_err() {
-        return Err(anyhow::anyhow!("{}", meal_data.unwrap_err()));
-    }
-
-    let content = fmt::fmt_meal_data_matrix(meal_data?);
-
-    info!("Sending message to room {}...", room.room_id());
-
-    let room_send_status = room.send(content).await;
-
-    if room_send_status.is_err() {
-        return Err(anyhow::anyhow!(
-            "Error sending message: {}",
-            room_send_status.unwrap_err()
-        ));
-    }
-
-    info!("Sent message to room {}", room.room_id());
-
+pub async fn final_sync(client: &Client) -> anyhow::Result<()> {
     // doing final sync
     info!("Doing final sync...");
 

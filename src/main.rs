@@ -24,6 +24,14 @@ async fn main() -> anyhow::Result<()> {
         .parse_filters(&std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string()))
         .init();
 
+    // create new strava client
+    let mut sc = StravaClient::new();
+
+    // fetch the correct s5url needed for the meal list API request
+    sc.fetch_s5url().await;
+
+    let meal_data = sc.get_meal_data().await?;
+
     match args.service {
         services::Service::Matrix => {
             matrix::env::init_env(); // initialize environment variables and error if some are missing
@@ -34,14 +42,12 @@ async fn main() -> anyhow::Result<()> {
                 return Err(anyhow::anyhow!("{:?}", credentials.unwrap_err()));
             }
 
-            matrix::sync::login_and_sync(credentials?).await?;
+            let client = matrix::sync::login_and_sync(credentials?).await?;
+            matrix::message::send_meal_data(&client, meal_data).await?;
+            matrix::sync::final_sync(&client).await?;
         }
         services::Service::Ntfy => {
             ntfy::env::init_env();
-
-            let mut sc = StravaClient::new();
-            sc.fetch_s5url().await;
-            let meal_data = sc.get_meal_data().await?;
 
             ntfy::send::send_notification(meal_data).await?;
         }

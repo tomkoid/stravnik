@@ -5,10 +5,10 @@ use log::{error, info};
 const MATRIX_HOMESERVER_DEFAULT: &str = "https://matrix.org";
 
 pub fn init_env() {
-    let homeserver = std::env::var("MATRIX_HOMESERVER").unwrap_or(String::new());
-    let username = std::env::var("MATRIX_USERNAME").unwrap_or(String::new());
-    let password = std::env::var("MATRIX_PASSWORD").unwrap_or(String::new());
-    let room = std::env::var("MATRIX_ROOM").unwrap_or(String::new());
+    let homeserver = std::env::var("MATRIX_HOMESERVER").unwrap_or_default();
+    let username = std::env::var("MATRIX_USERNAME").unwrap_or_default();
+    let password = std::env::var("MATRIX_PASSWORD").unwrap_or_default();
+    let room = std::env::var("MATRIX_ROOM").unwrap_or_default();
 
     if homeserver.is_empty() {
         info!(

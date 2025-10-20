@@ -3,7 +3,7 @@ use log::info;
 const STRAVA_CANTEEN_DEFAULT: &str = "0000";
 
 pub fn init_env() {
-    let strava_canteen = std::env::var("STRAVA_CANTEEN").unwrap_or(String::new());
+    let strava_canteen = std::env::var("STRAVA_CANTEEN").unwrap_or_default();
 
     if strava_canteen.is_empty() {
         info!(

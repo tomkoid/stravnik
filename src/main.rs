@@ -20,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
 
     // setup logger
     pretty_env_logger::formatted_builder()
-        .filter_level(log::LevelFilter::Info)
+        .parse_filters(&std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string()))
         .init();
 
     match args.service {

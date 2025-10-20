@@ -23,6 +23,8 @@ async fn get_meals() -> Result<serde_json::Value, reqwest::Error> {
         s5url: "".to_string(),
     };
 
+    debug!("Payload: {}", serde_json::to_string(&payload).unwrap());
+
     let request = client
         .post("https://app.strava.cz/api/jidelnicky")
         .header("Content-Type", "text/plain")

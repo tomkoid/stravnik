@@ -45,9 +45,13 @@ pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<()
 
     let room_string = std::env::var("MATRIX_ROOM").expect("Missing MATRIX_ROOM");
 
-    let room = client
-        .get_room(<&RoomId>::try_from(room_string.as_str()).unwrap())
-        .unwrap();
+    let room = client.get_room(<&RoomId>::try_from(room_string.as_str()).unwrap());
+
+    let room = if let Some(room) = room {
+        room
+    } else {
+        return Err(anyhow::anyhow!("Room not found"));
+    };
 
     // if room is not joined
     if room.state() != RoomState::Joined {

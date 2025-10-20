@@ -120,7 +120,13 @@ impl StravaClient {
         );
 
         let mut index = 1;
+        let mut meals_names: Vec<String> = Vec::new();
         for meal in today_meals.as_array().unwrap() {
+            // if meal name is already in the list, skip it
+            if meals_names.contains(&meal["nazev"].as_str().unwrap().to_string()) {
+                continue;
+            }
+
             let druh_chod = meal["druh_chod"].as_str().unwrap().trim();
             let druh_chod_string = format!("[{}]", druh_chod);
 
@@ -131,6 +137,8 @@ impl StravaClient {
                 druh_chod_string,
                 meal["nazev"].as_str().unwrap()
             );
+
+            meals_names.push(meal["nazev"].as_str().unwrap().to_string());
             index += 1;
         }
 

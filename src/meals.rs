@@ -1,7 +1,6 @@
 use anyhow::anyhow;
 use chrono::{Datelike, Local};
 use log::{debug, info};
-use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -13,96 +12,140 @@ struct RequestPayload {
     s5url: String,
 }
 
-async fn get_meals() -> Result<serde_json::Value, reqwest::Error> {
-    let client = reqwest::Client::new();
-
-    let payload = RequestPayload {
-        cislo: std::env::var("STRAVA_CANTEEN").unwrap(),
-        ignore_cert: false,
-        lang: "EN".to_string(),
-        s5url: "".to_string(),
-    };
-
-    debug!("Payload: {}", serde_json::to_string(&payload).unwrap());
-
-    let request = client
-        .post("https://app.strava.cz/api/jidelnicky")
-        .header("Content-Type", "text/plain")
-        .body(serde_json::to_string(&payload).unwrap())
-        .send()
-        .await?;
-
-    let json: serde_json::Value = serde_json::from_str(&request.text().await?).unwrap();
-
-    Ok(json)
+#[derive(Serialize)]
+struct S4PolozkyRequest {
+    cislo: String,
+    lang: String,
+    polozky: String,
 }
 
-pub async fn get_meal_data() -> anyhow::Result<String> {
-    // get today's date
-    let date_today = Local::now();
-    let date = format!(
-        "{:02}.{:02}.{}",
-        date_today.day(),
-        date_today.month(),
-        date_today.year()
-    );
+pub struct StravaClient {
+    pub canteen_id: String,
+    pub s5url: Option<String>,
 
-    info!("Getting meals from API...");
+    client: reqwest::Client,
+}
 
-    // get meals from API
-    let meals = get_meals().await;
+impl StravaClient {
+    pub fn new() -> Self {
+        let canteen_id = std::env::var("STRAVA_CANTEEN").unwrap();
+        let client = reqwest::Client::new();
 
-    info!("Got meals!");
-
-    if meals.is_err() {
-        return Ok(format!("Error: {:?}", meals.unwrap_err()));
-    }
-
-    let meals = &meals.unwrap();
-    let mut today_meals: serde_json::Value = serde_json::Value::Null;
-
-    let meals_array = if let Some(ma) = meals.as_array() {
-        ma
-    } else {
-        return Err(anyhow!(
-            "Failed to parse meals, response from Strava API invalid: {}",
-            meals
-        ));
-    };
-
-    // for every table in the response
-    for table in meals_array {
-        for (_, meal) in table.as_object().unwrap() {
-            if meal[0]["datum"].as_str().unwrap() == date {
-                today_meals = meal.clone();
-                debug!("Found meal: {}", meal);
-                break;
-            };
+        Self {
+            canteen_id,
+            s5url: None,
+            client,
         }
     }
 
-    // no meal found
-    if today_meals == serde_json::Value::Null {
-        return Err(anyhow!("Today's meal not found"));
+    pub async fn fetch_s5url(&mut self) {
+        let req_payload = S4PolozkyRequest {
+            cislo: self.canteen_id.clone(),
+            lang: "EN".to_string(),
+            polozky: "V_NAZEV,V_ULICE,V_MESTO,V_PSC,V_TELEFON,V_UCET,V_EMAIL,V_URL,DATCAS_AKT,VERZE,URLWSDL_S-URL,GPSDELKA,GPSSIRKA,IGN_CERT,TEXT_ANON,LOGO".to_string(),
+        };
+        let request = self
+            .client
+            .post("https://app.strava.cz/api/s4Polozky")
+            .header("Content-Type", "application/json")
+            .body(serde_json::to_string(&req_payload).unwrap())
+            .send()
+            .await
+            .unwrap();
+
+        let json: serde_json::Value = serde_json::from_str(&request.text().await.unwrap()).unwrap();
+
+        self.s5url = Some(json["s5url"].as_str().unwrap().to_string());
     }
 
-    debug!("MEALS len: {}", today_meals.as_array().unwrap().len());
+    pub async fn get_meal_data(&self) -> anyhow::Result<String> {
+        // get today's date
+        let date_today = Local::now();
+        let date = format!(
+            "{:02}.{:02}.{}",
+            date_today.day(),
+            date_today.month(),
+            date_today.year()
+        );
 
-    // if meal found, format it
-    let mut text = format!(
-        "### Obědy pro **{}**:\n",
-        today_meals[0]["datum"].as_str().unwrap(),
-    );
+        info!("Getting meals from API...");
 
-    let mut index = 1;
-    for meal in today_meals.as_array().unwrap() {
-        text = format!("{}{}. {}\n", text, index, meal["nazev"].as_str().unwrap());
-        index += 1;
+        // get meals from API
+        let meals = self.get_meals().await?;
+
+        info!("Got meals!");
+
+        let mut today_meals: serde_json::Value = serde_json::Value::Null;
+
+        let meals_array = if let Some(ma) = meals.as_array() {
+            ma
+        } else {
+            return Err(anyhow!(
+                "Failed to parse meals, response from Strava API invalid: {}",
+                meals
+            ));
+        };
+
+        // for every table in the response
+        for table in meals_array {
+            for (_, meal) in table.as_object().unwrap() {
+                if meal[0]["datum"].as_str().unwrap() == date {
+                    today_meals = meal.clone();
+                    debug!("Found meal: {}", meal);
+                    break;
+                };
+            }
+        }
+
+        // no meal found
+        if today_meals == serde_json::Value::Null {
+            return Err(anyhow!("Today's meal not found"));
+        }
+
+        debug!("MEALS len: {}", today_meals.as_array().unwrap().len());
+
+        // if meal found, format it
+        let mut text = format!(
+            "### Obědy pro **{}**:\n",
+            today_meals[0]["datum"].as_str().unwrap(),
+        );
+
+        let mut index = 1;
+        for meal in today_meals.as_array().unwrap() {
+            text = format!("{}{}. {}\n", text, index, meal["nazev"].as_str().unwrap());
+            index += 1;
+        }
+
+        Ok(text)
     }
 
-    Ok(text)
-}
+    async fn get_meals(&self) -> anyhow::Result<serde_json::Value> {
+        if self.s5url.is_none() {
+            return Err(anyhow!(
+                "s5url is not set, first fetch it with client.fetch_s5url()"
+            ));
+        }
 
-pub fn fmt_meal_data_matrix(text: String) -> RoomMessageEventContent {
-    RoomMessageEventContent::text_markdown(text)
+        let payload = RequestPayload {
+            cislo: self.canteen_id.clone(),
+            // cislo: ,
+            ignore_cert: false,
+            lang: "EN".to_string(),
+            s5url: self.s5url.clone().unwrap(),
+        };
+
+        debug!("Payload: {}", serde_json::to_string(&payload).unwrap());
+
+        let request = self
+            .client
+            .post("https://app.strava.cz/api/jidelnicky")
+            .header("Content-Type", "text/plain")
+            .body(serde_json::to_string(&payload).unwrap())
+            .send()
+            .await?;
+
+        let json: serde_json::Value = serde_json::from_str(&request.text().await?).unwrap();
+
+        Ok(json)
+    }
 }

@@ -1,6 +1,7 @@
 use args::Args;
 use clap::Parser;
-use meals::get_meal_data;
+
+use crate::meals::StravaClient;
 
 mod args;
 mod credentials;
@@ -38,7 +39,8 @@ async fn main() -> anyhow::Result<()> {
         services::Service::Ntfy => {
             ntfy::env::init_env();
 
-            let meal_data = get_meal_data().await?;
+            let sc = StravaClient::new();
+            let meal_data = sc.get_meal_data().await?;
 
             ntfy::send::send_notification(meal_data).await?;
         }

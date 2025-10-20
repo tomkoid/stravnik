@@ -1,5 +1,5 @@
-use crate::credentials::MatrixCredentials;
-use crate::meals;
+use crate::matrix::fmt;
+use crate::{credentials::MatrixCredentials, meals::StravaClient};
 
 use log::info;
 use matrix_sdk::{
@@ -66,13 +66,16 @@ pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<()
         println!("Joined to the room! ({:?})", room.state());
     }
 
-    let meal_data = meals::get_meal_data().await;
+    let mut sc = StravaClient::new();
+    sc.fetch_s5url().await;
+
+    let meal_data = sc.get_meal_data().await;
 
     if meal_data.is_err() {
         return Err(anyhow::anyhow!("{}", meal_data.unwrap_err()));
     }
 
-    let content = meals::fmt_meal_data_matrix(meal_data?);
+    let content = fmt::fmt_meal_data_matrix(meal_data?);
 
     info!("Sending message to room {}...", room.room_id());
 

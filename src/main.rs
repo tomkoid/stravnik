@@ -39,7 +39,8 @@ async fn main() -> anyhow::Result<()> {
         services::Service::Ntfy => {
             ntfy::env::init_env();
 
-            let sc = StravaClient::new();
+            let mut sc = StravaClient::new();
+            sc.fetch_s5url().await;
             let meal_data = sc.get_meal_data().await?;
 
             ntfy::send::send_notification(meal_data).await?;

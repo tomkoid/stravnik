@@ -1,0 +1,35 @@
+when:
+  - event: push
+    branch: main
+  - event: pull_request
+
+environment:
+  RUST_TOOLCHAIN: stable
+
+steps:
+  - name: Setup Rust
+    image: rust:latest
+    commands:
+      - rustup default ${RUST_TOOLCHAIN}
+      - rustup component add clippy
+      - rustup component add rustfmt
+
+  - name: Build
+    image: rust:latest
+    commands:
+      - cargo build --verbose --locked
+
+  - name: Test
+    image: rust:latest
+    commands:
+      - cargo test --verbose --locked
+
+  - name: Clippy
+    image: rust:latest
+    commands:
+      - cargo clippy --all-targets -- -D warnings
+
+  - name: Format check
+    image: rust:latest
+    commands:
+      - cargo fmt -- --check

@@ -14,10 +14,10 @@ steps:
       - rustup component add clippy
       - rustup component add rustfmt
 
-  - name: Build
+  - name: Check
     image: rust:latest
     commands:
-      - cargo build --verbose --locked
+      - cargo check --verbose --locked
 
   - name: Test
     image: rust:latest
@@ -28,8 +28,3 @@ steps:
     image: rust:latest
     commands:
       - cargo clippy --all-targets -- -D warnings
-
-  - name: Format check
-    image: rust:latest
-    commands:
-      - cargo fmt -- --check

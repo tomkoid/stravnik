@@ -1,7 +1,10 @@
 use anyhow::anyhow;
 use chrono::{Datelike, Local};
-use log::{debug, info};
+use log::debug;
+use log::info;
 use serde::Serialize;
+
+use crate::strava::client::StravaClient;
 
 #[derive(Serialize)]
 struct RequestPayload {
@@ -12,53 +15,7 @@ struct RequestPayload {
     s5url: String,
 }
 
-#[derive(Serialize, Debug)]
-struct S4PolozkyRequest {
-    cislo: String,
-    lang: String,
-    polozky: String,
-}
-
-pub struct StravaClient {
-    pub canteen_id: String,
-    pub s5url: Option<String>,
-
-    client: reqwest::Client,
-}
-
 impl StravaClient {
-    pub fn new() -> Self {
-        let canteen_id = std::env::var("STRAVA_CANTEEN").unwrap();
-        let client = reqwest::Client::new();
-
-        Self {
-            canteen_id,
-            s5url: None,
-            client,
-        }
-    }
-
-    pub async fn fetch_s5url(&mut self) {
-        let req_payload = S4PolozkyRequest {
-            cislo: self.canteen_id.clone(),
-            lang: "EN".to_string(),
-            polozky: "URLWSDL_S-URL".to_string(),
-        };
-        debug!("S4 Polozky request payload: {:?}", req_payload);
-        let request = self
-            .client
-            .post("https://app.strava.cz/api/s4Polozky")
-            .header("Content-Type", "text/plain;charset=UTF-8")
-            .body(serde_json::to_string(&req_payload).unwrap())
-            .send()
-            .await
-            .unwrap();
-
-        let json: serde_json::Value = serde_json::from_str(&request.text().await.unwrap()).unwrap();
-
-        self.s5url = Some(json["urlwsdl_s"][0].as_str().unwrap().to_string());
-    }
-
     pub async fn get_meal_data(&self) -> anyhow::Result<String> {
         // get today's date
         let date_today = Local::now();
@@ -81,7 +38,7 @@ impl StravaClient {
         let meals_array = if let Some(ma) = meals.as_array() {
             ma
         } else {
-            return Err(anyhow!(
+            return Err(anyhow::anyhow!(
                 "Failed to parse meals, response from Strava API invalid: {}",
                 meals
             ));
@@ -154,7 +111,6 @@ impl StravaClient {
 
         let payload = RequestPayload {
             cislo: self.canteen_id.clone(),
-            // cislo: ,
             ignore_cert: false,
             lang: "EN".to_string(),
             s5url: self.s5url.clone().unwrap(),
@@ -163,7 +119,7 @@ impl StravaClient {
         debug!("Payload: {}", serde_json::to_string(&payload).unwrap());
 
         let request = self
-            .client
+            .get_client()
             .post("https://app.strava.cz/api/jidelnicky")
             .header("Content-Type", "text/plain")
             .body(serde_json::to_string(&payload).unwrap())

@@ -1,15 +1,15 @@
 use args::Args;
 use clap::Parser;
 
-use crate::meals::StravaClient;
+use crate::strava::client::StravaClient;
 
 mod args;
 mod credentials;
 mod env;
 mod matrix;
-mod meals;
 mod ntfy;
 mod services;
+mod strava;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -42,9 +42,9 @@ async fn main() -> anyhow::Result<()> {
                 return Err(anyhow::anyhow!("{:?}", credentials.unwrap_err()));
             }
 
-            let client = matrix::sync::login_and_sync(credentials?).await?;
-            matrix::message::send_meal_data(&client, meal_data).await?;
-            matrix::sync::client_sync(&client).await?; // do a final sync
+            let m_client = matrix::sync::login_and_sync(credentials?).await?;
+            matrix::message::send_meal_data(&m_client, meal_data).await?;
+            matrix::sync::client_sync(&m_client).await?; // do a final sync
         }
         services::Service::Ntfy => {
             ntfy::env::init_env();

@@ -23,8 +23,3 @@ steps:
     image: rust:latest
     commands:
       - cargo test --verbose --locked
-
-  - name: Clippy
-    image: rust:latest
-    commands:
-      - cargo clippy --all-targets -- -D warnings

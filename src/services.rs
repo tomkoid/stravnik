@@ -8,4 +8,6 @@ pub enum Service {
 
     #[default]
     Ntfy,
+
+    Discord,
 }

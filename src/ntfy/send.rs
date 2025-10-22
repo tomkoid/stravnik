@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use log::info;
 
-pub async fn send_notification(text: String) -> anyhow::Result<()> {
+pub async fn send_ntfy_notification(text: String) -> anyhow::Result<()> {
     let host_url = std::env::var("NTFY_HOST_URL").unwrap();
     let room = std::env::var("NTFY_ROOM").unwrap();
 
@@ -18,7 +18,7 @@ pub async fn send_notification(text: String) -> anyhow::Result<()> {
         return Err(anyhow!(response.text().await?));
     }
 
-    info!("Sent notification! URL: {}, ROOM: {}", host_url, room);
+    info!("ntfy: sent notification! URL: {}, ROOM: {}", host_url, room);
 
     Ok(())
 }

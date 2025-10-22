@@ -5,7 +5,7 @@ use crate::strava::client::StravaClient;
 
 mod args;
 mod credentials;
-mod env;
+mod discord;
 mod matrix;
 mod ntfy;
 mod services;
@@ -17,7 +17,7 @@ async fn main() -> anyhow::Result<()> {
 
     dotenv::dotenv().ok();
 
-    env::init_env(); // setup environment variables needed for any service
+    strava::env::init_env(); // setup environment variables needed for strava
 
     // setup logger
     pretty_env_logger::formatted_builder()
@@ -49,7 +49,12 @@ async fn main() -> anyhow::Result<()> {
         services::Service::Ntfy => {
             ntfy::env::init_env();
 
-            ntfy::send::send_notification(meal_data).await?;
+            ntfy::send::send_ntfy_notification(meal_data).await?;
+        }
+        services::Service::Discord => {
+            discord::env::init_env();
+
+            discord::send::send_discord_message(meal_data).await?
         }
     }
 

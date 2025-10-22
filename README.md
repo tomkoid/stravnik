@@ -2,25 +2,28 @@
 
 # Strávník
 
-Get today's meal list from strava.cz and send notification of it on Matrix or other supported notification services.
+Get today's meal list from Strava.cz or any iCanteen URL and send notification of it on Matrix or other supported notification services.
 
-## Installation and usage 
+## Installation and usage
 
 You need to have Rust installed installed on your system if you want to build the package yourself.
 
-You need to have a Matrix account, a room to post to and a [strava.cz](https://strava.cz) canteen number.
+Then you need to create an environment file (.env). You can use the example config file from `.env.example`. Also make sure you fill in your credentials there for your selected services.
+If you try to use any service that doesn't have its credentials filled in in `.env`, you will get an error telling you what env variable you need to fill in.
+Why or how to fill in the credentials is not covered here, just use your brain lol.
+
+To run the script, run the following command:
 
 ```bash
 git clone https://codeberg.org/tomkoid/stravnik # clone the repo
 cd stravnik # go to the repo directory
-cargo run # compile rust app 
+cargo run # run the app
 ```
 
-Then you need to create an environment file (.env). You can use the example config file from `env.example`.
+Scheduling the script to run at a specific time can be done with `crontab` or any other method you prefer, it is fully up to you.
 
 ## Supported notification services
 
-This project is very small and only supports these two notification services:
-
 - [Matrix](https://matrix.org/)
 - [Ntfy](https://ntfy.sh/)
+- [Discord Webhook](https://discord.com/)

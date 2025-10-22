@@ -1,16 +1,18 @@
 use args::Args;
 use clap::Parser;
 
-use crate::strava::client::StravaClient;
+use crate::{icanteen::client::ICanteenClient, meal_data::MealsList, strava::client::StravaClient};
 
 mod args;
 mod credentials;
 mod discord;
+mod icanteen;
 mod matrix;
 mod meal_data;
 mod ntfy;
 mod services;
 mod strava;
+mod utils;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -18,20 +20,31 @@ async fn main() -> anyhow::Result<()> {
 
     dotenv::dotenv().ok();
 
-    strava::env::init_env(); // setup environment variables needed for strava
-
     // setup logger
     pretty_env_logger::formatted_builder()
         .parse_filters(&std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string()))
         .init();
 
-    // create new strava client
-    let mut sc = StravaClient::new();
+    let meal_data: MealsList;
+    match args.meal_list_service {
+        services::MealListService::Strava => {
+            strava::env::init_env(); // setup environment variables needed for strava
 
-    // fetch the correct s5url needed for the meal list API request
-    sc.fetch_s5url().await;
+            // create new strava client
+            let mut sc = StravaClient::new();
 
-    let meal_data = sc.get_meal_data().await?;
+            // fetch the correct s5url needed for the meal list API request
+            sc.fetch_s5url().await;
+
+            meal_data = sc.get_meal_data().await?;
+        }
+        services::MealListService::ICanteen => {
+            icanteen::env::init_env(); // setup environment variables needed for icanteen
+
+            let icc = ICanteenClient::new();
+            meal_data = icc.get_meals().await?;
+        }
+    }
 
     match args.service {
         services::NotificationService::Matrix => {
@@ -58,6 +71,8 @@ async fn main() -> anyhow::Result<()> {
             discord::send::send_discord_message(meal_data.discord_fmt()).await?
         }
     }
+
+    _ = meal_data.source;
 
     Ok(())
 }

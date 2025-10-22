@@ -17,4 +17,6 @@ pub enum NotificationService {
 pub enum MealListService {
     #[default]
     Strava,
+
+    ICanteen,
 }

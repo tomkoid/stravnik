@@ -16,7 +16,10 @@ impl MealsList {
         let mut text = format!("### Obědy pro **{}**:\n", self.meals[0].date);
 
         for (index, meal) in self.meals.iter().enumerate() {
-            text = format!("{}{}. *[{}]* {}\n", text, index, meal.course, meal.name);
+            text = format!(
+                "{}{}. *[{}]* {}\n",
+                text, index, meal.course, meal.description
+            );
         }
 
         text
@@ -25,7 +28,16 @@ impl MealsList {
     pub fn discord_fmt(&self) -> serde_json::Value {
         let mut text = String::new();
         for (index, meal) in self.meals.iter().enumerate() {
-            text = format!("{}{}. *[{}]* {}\n", text, index, meal.course, meal.name);
+            let meal_name = if meal.name.is_empty() {
+                "".to_string()
+            } else {
+                format!(" - **{}**", meal.name)
+            };
+
+            text = format!(
+                "{}{}. *[{}{}]* {}\n",
+                text, index, meal.course, meal_name, meal.description
+            );
         }
 
         let title = format!("Obědy pro **{}**", self.meals[0].date);
@@ -46,4 +58,5 @@ pub struct Meal {
     pub name: String,
     pub date: String,
     pub course: String,
+    pub description: String,
 }

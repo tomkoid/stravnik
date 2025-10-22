@@ -1,5 +1,4 @@
 use anyhow::anyhow;
-use chrono::{Datelike, Local};
 use log::debug;
 use log::info;
 use serde::Serialize;
@@ -8,6 +7,7 @@ use crate::meal_data::Meal;
 use crate::meal_data::MealsList;
 use crate::services::MealListService;
 use crate::strava::client::StravaClient;
+use crate::utils::today_string;
 
 #[derive(Serialize)]
 struct RequestPayload {
@@ -21,13 +21,7 @@ struct RequestPayload {
 impl StravaClient {
     pub async fn get_meal_data(&self) -> anyhow::Result<MealsList> {
         // get today's date
-        let date_today = Local::now();
-        let date = format!(
-            "{:02}.{:02}.{}",
-            date_today.day(),
-            date_today.month(),
-            date_today.year()
-        );
+        let date = today_string();
 
         info!("strava: getting meals from API...");
 
@@ -76,18 +70,19 @@ impl StravaClient {
         let mut found_meals: Vec<Meal> = Vec::new();
 
         'outer: for meal in today_meals.as_array().unwrap() {
-            let meal_name = meal["nazev"].as_str().unwrap().to_string();
+            let meal_description = meal["nazev"].as_str().unwrap().to_string();
 
             // if meal name is already in the list, skip it
             for found_meal in &found_meals {
-                if found_meal.name == meal_name {
-                    debug!("skipping meal, duplicate found: {}", meal_name);
+                if found_meal.name == meal_description {
+                    debug!("skipping meal, duplicate found: {}", meal_description);
                     continue 'outer;
                 }
             }
 
             found_meals.push(Meal {
-                name: meal_name,
+                name: String::new(),
+                description: meal_description,
                 date: today_meals[0]["datum"].as_str().unwrap().to_string(),
                 course: meal["druh_chod"].as_str().unwrap().to_string(),
             });

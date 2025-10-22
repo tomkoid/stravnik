@@ -55,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
         services::NotificationService::Discord => {
             discord::env::init_env();
 
-            discord::send::send_discord_message(meal_data.basic_fmt()).await?
+            discord::send::send_discord_message(meal_data.discord_fmt()).await?
         }
     }
 

@@ -1,3 +1,5 @@
+use serde_json::json;
+
 use crate::services::MealListService;
 
 pub struct MealsList {
@@ -18,6 +20,25 @@ impl MealsList {
         }
 
         text
+    }
+
+    pub fn discord_fmt(&self) -> serde_json::Value {
+        let mut text = String::new();
+        for (index, meal) in self.meals.iter().enumerate() {
+            text = format!("{}{}. *[{}]* {}\n", text, index, meal.course, meal.name);
+        }
+
+        let title = format!("Obědy pro **{}**", self.meals[0].date);
+
+        let payload = json!({
+            "embeds": [{
+                "title": title,
+                "description": text,
+                "color": 0xcba6f7
+            }]
+        });
+
+        payload
     }
 }
 

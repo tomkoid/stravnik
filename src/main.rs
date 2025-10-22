@@ -44,18 +44,18 @@ async fn main() -> anyhow::Result<()> {
             }
 
             let m_client = matrix::sync::login_and_sync(credentials?).await?;
-            matrix::message::send_meal_data(&m_client, meal_data).await?;
+            matrix::message::send_meal_data(&m_client, meal_data.basic_fmt()).await?;
             matrix::sync::client_sync(&m_client).await?; // do a final sync
         }
         services::NotificationService::Ntfy => {
             ntfy::env::init_env();
 
-            ntfy::send::send_ntfy_notification(meal_data).await?;
+            ntfy::send::send_ntfy_notification(meal_data.basic_fmt()).await?;
         }
         services::NotificationService::Discord => {
             discord::env::init_env();
 
-            discord::send::send_discord_message(meal_data).await?
+            discord::send::send_discord_message(meal_data.basic_fmt()).await?
         }
     }
 

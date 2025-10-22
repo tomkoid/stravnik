@@ -4,6 +4,9 @@ use log::debug;
 use log::info;
 use serde::Serialize;
 
+use crate::meal_data::Meal;
+use crate::meal_data::MealsList;
+use crate::services::MealListService;
 use crate::strava::client::StravaClient;
 
 #[derive(Serialize)]
@@ -16,7 +19,7 @@ struct RequestPayload {
 }
 
 impl StravaClient {
-    pub async fn get_meal_data(&self) -> anyhow::Result<String> {
+    pub async fn get_meal_data(&self) -> anyhow::Result<MealsList> {
         // get today's date
         let date_today = Local::now();
         let date = format!(
@@ -70,36 +73,27 @@ impl StravaClient {
 
         debug!("MEALS len: {}", today_meals.as_array().unwrap().len());
 
-        // if meal found, format it
-        let mut text = format!(
-            "### Obědy pro **{}**:\n",
-            today_meals[0]["datum"].as_str().unwrap(),
-        );
+        let mut found_meals: Vec<Meal> = Vec::new();
 
-        let mut index = 1;
-        let mut meals_names: Vec<String> = Vec::new();
-        for meal in today_meals.as_array().unwrap() {
+        'outer: for meal in today_meals.as_array().unwrap() {
+            let meal_name = meal["nazev"].as_str().unwrap().to_string();
+
             // if meal name is already in the list, skip it
-            if meals_names.contains(&meal["nazev"].as_str().unwrap().to_string()) {
-                continue;
+            for found_meal in &found_meals {
+                if found_meal.name == meal_name {
+                    debug!("skipping meal, duplicate found: {}", meal_name);
+                    continue 'outer;
+                }
             }
 
-            let druh_chod = meal["druh_chod"].as_str().unwrap().trim();
-            let druh_chod_string = format!("[{}]", druh_chod);
-
-            text = format!(
-                "{}{}. *{}* {}\n",
-                text,
-                index,
-                druh_chod_string,
-                meal["nazev"].as_str().unwrap()
-            );
-
-            meals_names.push(meal["nazev"].as_str().unwrap().to_string());
-            index += 1;
+            found_meals.push(Meal {
+                name: meal_name,
+                date: today_meals[0]["datum"].as_str().unwrap().to_string(),
+                course: meal["druh_chod"].as_str().unwrap().to_string(),
+            });
         }
 
-        Ok(text.trim().to_string())
+        Ok(MealsList::new(found_meals, MealListService::Strava))
     }
 
     async fn get_meals(&self) -> anyhow::Result<serde_json::Value> {

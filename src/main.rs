@@ -7,6 +7,7 @@ mod args;
 mod credentials;
 mod discord;
 mod matrix;
+mod meal_data;
 mod ntfy;
 mod services;
 mod strava;
@@ -33,7 +34,7 @@ async fn main() -> anyhow::Result<()> {
     let meal_data = sc.get_meal_data().await?;
 
     match args.service {
-        services::Service::Matrix => {
+        services::NotificationService::Matrix => {
             matrix::env::init_env(); // initialize environment variables and error if some are missing
 
             let credentials = credentials::init_matrix_credentials();
@@ -46,12 +47,12 @@ async fn main() -> anyhow::Result<()> {
             matrix::message::send_meal_data(&m_client, meal_data).await?;
             matrix::sync::client_sync(&m_client).await?; // do a final sync
         }
-        services::Service::Ntfy => {
+        services::NotificationService::Ntfy => {
             ntfy::env::init_env();
 
             ntfy::send::send_ntfy_notification(meal_data).await?;
         }
-        services::Service::Discord => {
+        services::NotificationService::Discord => {
             discord::env::init_env();
 
             discord::send::send_discord_message(meal_data).await?

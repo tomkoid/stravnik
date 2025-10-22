@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use crate::services::Service;
+use crate::services::NotificationService;
 
 /// Send notifications for meal updates
 #[derive(Parser, Debug)]
@@ -8,5 +8,5 @@ use crate::services::Service;
 pub struct Args {
     /// Type of notification service to use
     #[arg(required = true)]
-    pub service: Service,
+    pub service: NotificationService,
 }

@@ -26,12 +26,12 @@ impl StravaClient {
             date_today.year()
         );
 
-        info!("Getting meals from API...");
+        info!("strava: getting meals from API...");
 
         // get meals from API
         let meals = self.get_meals().await?;
 
-        info!("Got meals!");
+        info!("strava: got meals!");
 
         let mut today_meals: serde_json::Value = serde_json::Value::Null;
 
@@ -57,7 +57,7 @@ impl StravaClient {
             for (_, meal) in table_obj {
                 if meal[0]["datum"].as_str().unwrap() == date {
                     today_meals = meal.clone();
-                    debug!("Found meal: {}", meal);
+                    debug!("found meal table: {}", meal);
                     break;
                 };
             }
@@ -116,7 +116,10 @@ impl StravaClient {
             s5url: self.s5url.clone().unwrap(),
         };
 
-        debug!("Payload: {}", serde_json::to_string(&payload).unwrap());
+        debug!(
+            "strava: payload: {}",
+            serde_json::to_string(&payload).unwrap()
+        );
 
         let request = self
             .get_client()

@@ -5,8 +5,7 @@ pub struct ICanteenClient {
 }
 
 impl ICanteenClient {
-    pub fn new() -> Self {
-        let canteen_url = std::env::var("ICANTEEN_URL").unwrap();
+    pub fn new(canteen_url: String) -> Self {
         let client = reqwest::Client::new();
 
         Self {

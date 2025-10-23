@@ -3,10 +3,12 @@ use matrix_sdk::{ruma::RoomId, Client, RoomState};
 
 use crate::matrix::fmt;
 
-pub async fn send_meal_data(client: &Client, meal_data: String) -> anyhow::Result<()> {
-    let room_string = std::env::var("MATRIX_ROOM").expect("Missing MATRIX_ROOM");
-
-    let room = client.get_room(<&RoomId>::try_from(room_string.as_str()).unwrap());
+pub async fn send_meal_data(
+    client: &Client,
+    room_id: &str,
+    meal_data: String,
+) -> anyhow::Result<()> {
+    let room = client.get_room(<&RoomId>::try_from(room_id).unwrap());
 
     let room = if let Some(room) = room {
         room

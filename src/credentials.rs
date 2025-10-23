@@ -1,3 +1,5 @@
+use crate::args::Args;
+
 #[derive(Debug)]
 pub struct MatrixCredentials {
     pub homeserver: String,
@@ -5,11 +7,11 @@ pub struct MatrixCredentials {
     pub password: String,
 }
 
-pub fn init_matrix_credentials() -> anyhow::Result<MatrixCredentials> {
-    // get username and password from environment variables
-    let homeserver = std::env::var("MATRIX_HOMESERVER").unwrap_or("https://matrix.org".to_string());
-    let username = std::env::var("MATRIX_USERNAME")?;
-    let password = std::env::var("MATRIX_PASSWORD")?;
+pub fn init_matrix_credentials(args: &Args) -> anyhow::Result<MatrixCredentials> {
+    // get username and password from args
+    let homeserver = args.matrix_homeserver.clone().unwrap();
+    let username = args.matrix_username.clone().unwrap();
+    let password = args.matrix_password.clone().unwrap();
 
     Ok(MatrixCredentials {
         homeserver,

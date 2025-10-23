@@ -2,9 +2,10 @@ use log::{error, info};
 use reqwest::Client;
 use serde_json::json;
 
-pub async fn send_discord_message(payload: serde_json::Value) -> anyhow::Result<()> {
-    let webhook_url = std::env::var("DISCORD_WEBHOOK_URL").unwrap();
-
+pub async fn send_discord_message(
+    webhook_url: String,
+    payload: serde_json::Value,
+) -> anyhow::Result<()> {
     let client = Client::new();
 
     // message payload (TODO: embeds, username, avatar_url, etc.)

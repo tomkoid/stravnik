@@ -2,11 +2,11 @@ use std::process::exit;
 
 use log::error;
 
-pub fn init_env() {
-    let ic_url = std::env::var("ICANTEEN_URL").unwrap_or_default();
+use crate::args::Args;
 
-    if ic_url.is_empty() {
-        error!("Missing iCanteen URL (ICANTEEN_URL)",);
+pub fn check_env(args: &Args) {
+    if args.icanteen_url.is_none() {
+        error!("Missing iCanteen URL (--icanteen-url)",);
         exit(1)
     }
 }

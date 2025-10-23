@@ -6,8 +6,7 @@ pub struct StravaClient {
 }
 
 impl StravaClient {
-    pub fn new() -> Self {
-        let canteen_id = std::env::var("STRAVA_CANTEEN").unwrap();
+    pub fn new(canteen_id: String) -> Self {
         let client = reqwest::Client::new();
 
         Self {

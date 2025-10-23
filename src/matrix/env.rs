@@ -2,29 +2,26 @@ use std::process::exit;
 
 use log::{error, info};
 
+use crate::args::Args;
+
 const MATRIX_HOMESERVER_DEFAULT: &str = "https://matrix.org";
 
-pub fn init_env() {
-    let homeserver = std::env::var("MATRIX_HOMESERVER").unwrap_or_default();
-    let username = std::env::var("MATRIX_USERNAME").unwrap_or_default();
-    let password = std::env::var("MATRIX_PASSWORD").unwrap_or_default();
-    let room = std::env::var("MATRIX_ROOM").unwrap_or_default();
-
-    if homeserver.is_empty() {
+pub fn check_env(args: &mut Args) {
+    if args.matrix_homeserver.is_none() {
         info!(
-            "No homeserver specified, defaulting to default: {}",
+            "No homeserver specified via flag, defaulting to default: {}",
             MATRIX_HOMESERVER_DEFAULT
         );
-        std::env::set_var("MATRIX_HOMESERVER", MATRIX_HOMESERVER_DEFAULT);
+        args.matrix_homeserver = Some(MATRIX_HOMESERVER_DEFAULT.to_string());
     }
 
-    if username.is_empty() || password.is_empty() {
-        error!("Missing username (MATRIX_USERNAME) or password (MATRIX_PASSWORD)");
+    if args.matrix_username.is_none() || args.matrix_password.is_none() {
+        error!("Missing username (--matrix-username) or password (--matrix-password)");
         exit(1);
     }
 
-    if room.is_empty() {
-        error!("Missing matrix room id (MATRIX_ROOM)");
+    if args.matrix_room.is_none() {
+        error!("Missing matrix room id (--matrix-room)");
         exit(1);
     }
 }

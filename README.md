@@ -8,9 +8,13 @@ Get today's meal list from Strava.cz or any iCanteen URL and send notification o
 
 You need to have Rust installed installed on your system if you want to build the package yourself.
 
+<strike>
 Then you need to create an environment file (.env). You can use the example config file from `.env.example`. Also make sure you fill in your credentials there for your selected services.
 If you try to use any service that doesn't have its credentials filled in in `.env`, you will get an error telling you what env variable you need to fill in.
 Why or how to fill in the credentials is not covered here, just use your brain lol.
+</strike>
+
+In the newest version you pass in all credentials and options as command line arguments.
 
 To run the script, run the following command:
 

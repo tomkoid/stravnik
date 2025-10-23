@@ -27,7 +27,7 @@ impl MealsList {
 
     pub fn discord_fmt(&self) -> serde_json::Value {
         let mut text = String::new();
-        for (index, meal) in self.meals.iter().enumerate() {
+        for meal in self.meals.iter() {
             let meal_name = if meal.name.is_empty() {
                 "".to_string()
             } else {
@@ -35,8 +35,8 @@ impl MealsList {
             };
 
             text = format!(
-                "{}{}. *[{}{}]* {}\n",
-                text, index, meal.course, meal_name, meal.description
+                "{}*[{}{}]* {}\n",
+                text, meal.course, meal_name, meal.description
             );
         }
 

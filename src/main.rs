@@ -6,13 +6,10 @@ use crate::services::pick_service;
 mod args;
 mod credentials;
 mod discord;
-mod icanteen;
+mod env;
 mod matrix;
-mod meal_data;
 mod ntfy;
 mod services;
-mod strava;
-mod utils;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

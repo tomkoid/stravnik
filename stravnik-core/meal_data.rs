@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use stravnik_core::services::MealListService;
+use crate::services::MealListService;
 
 pub struct MealsList {
     pub meals: Vec<Meal>,

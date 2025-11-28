@@ -1,14 +1,15 @@
-use crate::{args, meal_data::MealsList};
+use crate::{
+    args,
+    env::{icanteen_check_env, strava_check_env},
+};
 use clap::ValueEnum;
 use serde::Serialize;
-use stravnik_core::services::MealListService;
-
-use crate::{
-    credentials, discord,
-    icanteen::{self, client::ICanteenClient},
-    matrix, ntfy,
-    strava::{self, client::StravaClient},
+use stravnik_core::{
+    icanteen::client::ICanteenClient, meal_data::MealsList, services::MealListService,
+    strava::client::StravaClient,
 };
+
+use crate::{credentials, discord, matrix, ntfy};
 
 #[derive(Default, ValueEnum, Clone, Debug, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -25,7 +26,7 @@ pub async fn pick_service(mut args: args::Args) -> anyhow::Result<()> {
     let meal_d: MealsList;
     match args.meal_list_service {
         MealListService::Strava => {
-            strava::env::check_env(&mut args); // setup arguments needed for strava
+            strava_check_env(&mut args); // setup arguments needed for strava
 
             // create new strava client
             let mut sc = StravaClient::new(args.strava_canteen.clone().unwrap());
@@ -36,7 +37,7 @@ pub async fn pick_service(mut args: args::Args) -> anyhow::Result<()> {
             meal_d = sc.get_meal_data().await?;
         }
         MealListService::ICanteen => {
-            icanteen::env::check_env(&args); // setup arguments for icanteen
+            icanteen_check_env(&args); // setup arguments for icanteen
 
             let icc = ICanteenClient::new(args.icanteen_url.clone().unwrap());
             meal_d = icc.get_meals().await?;

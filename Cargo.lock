@@ -3385,6 +3385,7 @@ dependencies = [
  "serde",
  "serde_json",
  "stravnik-core",
+ "stravnik-notifications",
  "strum",
  "strum_macros",
  "tokio",
@@ -3403,6 +3404,26 @@ dependencies = [
  "scraper",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "stravnik-notifications"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "dotenv",
+ "log",
+ "matrix-sdk",
+ "pretty_env_logger",
+ "reqwest 0.12.24",
+ "serde",
+ "serde_json",
+ "stravnik-core",
+ "strum",
+ "strum_macros",
+ "tokio",
 ]
 
 [[package]]

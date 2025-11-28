@@ -1,5 +1,5 @@
 use log::info;
-use matrix_sdk::{ruma::RoomId, Client, RoomState};
+use matrix_sdk::{Client, RoomState, ruma::RoomId};
 
 use crate::matrix::fmt;
 

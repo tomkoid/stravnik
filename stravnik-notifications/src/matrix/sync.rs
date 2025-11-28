@@ -1,7 +1,7 @@
-use crate::credentials::MatrixCredentials;
-
 use log::info;
-use matrix_sdk::{config::SyncSettings, matrix_auth::MatrixSession, Client};
+use matrix_sdk::{Client, config::SyncSettings, matrix_auth::MatrixSession};
+
+use crate::matrix::credentials::MatrixCredentials;
 
 pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<Client> {
     let client = Client::builder()

@@ -4,11 +4,7 @@ use clap::Parser;
 use crate::services::pick_service;
 
 mod args;
-mod credentials;
-mod discord;
 mod env;
-mod matrix;
-mod ntfy;
 mod services;
 
 #[tokio::main]

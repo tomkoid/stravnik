@@ -1,17 +1,10 @@
-[workspace]
-members = [".", "stravnik-core", "stravnik-notifications"]
-resolver = "2"
-
 [package]
-name = "stravnik"
+name = "stravnik-notifications"
 version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+edition = "2024"
 
 [dependencies]
-stravnik-core = { path = "stravnik-core" }
-stravnik-notifications = { path = "stravnik-notifications" }
+stravnik-core = { path = "../stravnik-core" }
 anyhow = "1.0.82"
 chrono = "0.4.38"
 clap = { version = "4.5.16", features = ["derive"] }
@@ -25,10 +18,3 @@ serde_json = "1.0.116"
 strum = "0.26.3"
 strum_macros = "0.26.4"
 tokio = { version = "1.37.0", features = ["full"] }
-
-[profile.release]
-lto = true
-strip = true
-opt-level = 3
-codegen-units = 1
-panic = "abort"

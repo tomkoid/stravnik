@@ -1,8 +1,8 @@
-use anyhow::anyhow;
 use log::debug;
 use log::info;
 use serde::Serialize;
 
+use crate::errors::MealClientError;
 use crate::meal_data::Meal;
 use crate::meal_data::MealsList;
 use crate::services::MealListService;
@@ -19,7 +19,7 @@ struct RequestPayload {
 }
 
 impl StravaClient {
-    pub async fn get_meal_data(&self) -> anyhow::Result<MealsList> {
+    pub async fn get_meal_data(&self) -> Result<MealsList, MealClientError> {
         // get today's date
         let date = today_string();
 
@@ -35,10 +35,10 @@ impl StravaClient {
         let meals_array = if let Some(ma) = meals.as_array() {
             ma
         } else {
-            return Err(anyhow::anyhow!(
+            return Err(MealClientError::ParseError(format!(
                 "Failed to parse meals, response from Strava API invalid: {}",
-                meals
-            ));
+                meals,
+            )));
         };
 
         // for every table in the response
@@ -62,7 +62,7 @@ impl StravaClient {
 
         // no meal found
         if today_meals == serde_json::Value::Null {
-            return Err(anyhow!("Today's meal not found"));
+            return Err(MealClientError::MealNotFound);
         }
 
         debug!("MEALS len: {}", today_meals.as_array().unwrap().len());
@@ -80,21 +80,24 @@ impl StravaClient {
                 }
             }
 
+            let meal_date = today_meals[0]["datum"].as_str().unwrap().to_string();
+            let meal_course = meal["druh_chod"].as_str().unwrap().to_string();
+
             found_meals.push(Meal {
                 name: String::new(),
                 description: meal_description,
-                date: today_meals[0]["datum"].as_str().unwrap().to_string(),
-                course: meal["druh_chod"].as_str().unwrap().to_string(),
+                date: meal_date,
+                course: meal_course,
             });
         }
 
         Ok(MealsList::new(found_meals, MealListService::Strava))
     }
 
-    async fn get_meals(&self) -> anyhow::Result<serde_json::Value> {
+    async fn get_meals(&self) -> Result<serde_json::Value, MealClientError> {
         if self.s5url.is_none() {
-            return Err(anyhow!(
-                "s5url is not set, first fetch it with client.fetch_s5url()"
+            return Err(MealClientError::InvalidConfig(
+                "s5url is not set, first fetch it with client.fetch_s5url()".to_string(),
             ));
         }
 

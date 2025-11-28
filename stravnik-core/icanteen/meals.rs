@@ -1,17 +1,17 @@
 use crate::{
+    errors::MealClientError,
     icanteen::client::ICanteenClient,
     meal_data::{Meal, MealsList},
     services::MealListService,
     utils::today_string,
 };
-use anyhow::anyhow;
 use chrono::Local;
 use log::{debug, info};
 use regex::Regex;
 use scraper::{Html, Selector};
 
 impl ICanteenClient {
-    pub async fn get_meals(&self) -> anyhow::Result<MealsList> {
+    pub async fn get_meals(&self) -> Result<MealsList, MealClientError> {
         info!("icanteen: getting meals...");
 
         let resp = self.fetch_meals().await?;
@@ -115,9 +115,11 @@ impl ICanteenClient {
         meals
     }
 
-    async fn fetch_meals(&self) -> anyhow::Result<String> {
+    async fn fetch_meals(&self) -> Result<String, MealClientError> {
         if self.canteen_url.is_empty() {
-            return Err(anyhow!("self.canteen_url is not set!"));
+            return Err(MealClientError::InvalidConfig(
+                "self.canteen_url is not set!".to_string(),
+            ));
         }
 
         debug!("icanteen: sending request to: {}", self.canteen_url);

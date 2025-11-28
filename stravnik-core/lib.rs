@@ -1,3 +1,4 @@
+pub mod errors;
 pub mod icanteen;
 pub mod meal_data;
 pub mod services;

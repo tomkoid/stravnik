@@ -1,0 +1,11 @@
+[package]
+name = "stravnik-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.16", features = ["derive"] }
+serde = { version = "1.0.198", features = ["derive"] }
+
+[lib]
+path = "lib.rs"

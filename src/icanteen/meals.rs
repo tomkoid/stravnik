@@ -1,7 +1,6 @@
 use crate::{
     icanteen::client::ICanteenClient,
     meal_data::{Meal, MealsList},
-    services::MealListService,
     utils::today_string,
 };
 use anyhow::anyhow;
@@ -9,6 +8,7 @@ use chrono::Local;
 use log::{debug, info};
 use regex::Regex;
 use scraper::{Html, Selector};
+use stravnik_core::services::MealListService;
 
 impl ICanteenClient {
     pub async fn get_meals(&self) -> anyhow::Result<MealsList> {

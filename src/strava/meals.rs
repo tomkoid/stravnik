@@ -2,10 +2,10 @@ use anyhow::anyhow;
 use log::debug;
 use log::info;
 use serde::Serialize;
+use stravnik_core::services::MealListService;
 
 use crate::meal_data::Meal;
 use crate::meal_data::MealsList;
-use crate::services::MealListService;
 use crate::strava::client::StravaClient;
 use crate::utils::today_string;
 

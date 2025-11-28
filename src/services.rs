@@ -1,11 +1,12 @@
 use crate::{args, meal_data::MealsList};
 use clap::ValueEnum;
 use serde::Serialize;
+use stravnik_core::services::MealListService;
 
 use crate::{
     credentials, discord,
     icanteen::{self, client::ICanteenClient},
-    matrix, ntfy, services,
+    matrix, ntfy,
     strava::{self, client::StravaClient},
 };
 
@@ -20,19 +21,10 @@ pub enum NotificationService {
     Discord,
 }
 
-#[derive(Default, ValueEnum, Clone, Debug, Serialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum MealListService {
-    #[default]
-    Strava,
-
-    ICanteen,
-}
-
 pub async fn pick_service(mut args: args::Args) -> anyhow::Result<()> {
     let meal_d: MealsList;
     match args.meal_list_service {
-        services::MealListService::Strava => {
+        MealListService::Strava => {
             strava::env::check_env(&mut args); // setup arguments needed for strava
 
             // create new strava client
@@ -43,7 +35,7 @@ pub async fn pick_service(mut args: args::Args) -> anyhow::Result<()> {
 
             meal_d = sc.get_meal_data().await?;
         }
-        services::MealListService::ICanteen => {
+        MealListService::ICanteen => {
             icanteen::env::check_env(&args); // setup arguments for icanteen
 
             let icc = ICanteenClient::new(args.icanteen_url.clone().unwrap());
@@ -52,7 +44,7 @@ pub async fn pick_service(mut args: args::Args) -> anyhow::Result<()> {
     }
 
     match args.service {
-        services::NotificationService::Matrix => {
+        NotificationService::Matrix => {
             matrix::env::check_env(&mut args); // initialize environment variables and error if some are missing
 
             let credentials = credentials::init_matrix_credentials(&args);
@@ -70,14 +62,14 @@ pub async fn pick_service(mut args: args::Args) -> anyhow::Result<()> {
             .await?;
             matrix::sync::client_sync(&m_client).await?; // do a final sync
         }
-        services::NotificationService::Ntfy => {
+        NotificationService::Ntfy => {
             ntfy::env::check_env(&mut args);
 
             let ntfy_client =
                 ntfy::client::NtfyClient::new(args.ntfy_host_url.unwrap(), args.ntfy_room.unwrap());
             ntfy_client.send(meal_d.basic_fmt()).await?;
         }
-        services::NotificationService::Discord => {
+        NotificationService::Discord => {
             discord::env::check_env(&args);
 
             discord::send::send_discord_message(

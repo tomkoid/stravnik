@@ -1,6 +1,7 @@
 use clap::Parser;
+use stravnik_core::services::MealListService;
 
-use crate::services::{MealListService, NotificationService};
+use crate::services::NotificationService;
 
 /// Send notifications for meal updates
 #[derive(Parser, Debug)]

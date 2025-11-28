@@ -3304,9 +3304,18 @@ dependencies = [
  "scraper",
  "serde",
  "serde_json",
+ "stravnik-core",
  "strum",
  "strum_macros",
  "tokio",
+]
+
+[[package]]
+name = "stravnik-core"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "serde",
 ]
 
 [[package]]

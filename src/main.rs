@@ -8,7 +8,8 @@ mod env;
 mod services;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> eyre::Result<()> {
+    eyre::install()?;
     let args = Args::parse();
 
     // setup logger

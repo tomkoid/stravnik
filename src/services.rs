@@ -27,7 +27,7 @@ pub enum NotificationService {
     Discord,
 }
 
-pub async fn pick_service(mut args: args::Args) -> anyhow::Result<()> {
+pub async fn pick_service(mut args: args::Args) -> eyre::Result<()> {
     let meal_d: MealsList;
     match args.meal_list_service {
         MealListService::Strava => {

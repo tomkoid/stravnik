@@ -1,10 +1,9 @@
-use anyhow::anyhow;
 use log::info;
 
-use crate::ntfy::client::NtfyClient;
+use crate::{errors::NotificationClientError, ntfy::client::NtfyClient};
 
 impl NtfyClient {
-    pub async fn send(&self, text: String) -> anyhow::Result<()> {
+    pub async fn send(&self, text: String) -> Result<(), NotificationClientError> {
         let client = reqwest::Client::new();
 
         let response = client
@@ -15,7 +14,9 @@ impl NtfyClient {
             .await?;
 
         if !response.status().is_success() {
-            return Err(anyhow!(response.text().await?));
+            return Err(NotificationClientError::RequestError(
+                response.text().await?,
+            ));
         }
 
         info!(

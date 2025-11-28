@@ -1,9 +1,11 @@
 use log::info;
 use matrix_sdk::{Client, config::SyncSettings, matrix_auth::MatrixSession};
 
-use crate::matrix::credentials::MatrixCredentials;
+use crate::{errors::NotificationClientError, matrix::credentials::MatrixCredentials};
 
-pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<Client> {
+pub async fn login_and_sync(
+    credentials: MatrixCredentials,
+) -> Result<Client, NotificationClientError> {
     let client = Client::builder()
         .homeserver_url(credentials.homeserver)
         .build()
@@ -39,7 +41,7 @@ pub async fn login_and_sync(credentials: MatrixCredentials) -> anyhow::Result<Cl
     Ok(client)
 }
 
-pub async fn client_sync(client: &Client) -> anyhow::Result<()> {
+pub async fn client_sync(client: &Client) -> Result<(), matrix_sdk::Error> {
     info!("sync: syncing client...");
     client.sync_once(SyncSettings::default()).await?;
     info!("sync: sync done...");

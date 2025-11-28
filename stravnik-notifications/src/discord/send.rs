@@ -5,7 +5,7 @@ use serde_json::json;
 pub async fn send_discord_message(
     webhook_url: String,
     payload: serde_json::Value,
-) -> anyhow::Result<()> {
+) -> Result<(), reqwest::Error> {
     let client = Client::new();
 
     // message payload (TODO: embeds, username, avatar_url, etc.)

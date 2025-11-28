@@ -3410,20 +3410,14 @@ dependencies = [
 name = "stravnik-notifications"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "chrono",
  "clap",
- "dotenv",
  "log",
  "matrix-sdk",
- "pretty_env_logger",
  "reqwest 0.12.24",
  "serde",
  "serde_json",
  "stravnik-core",
- "strum",
- "strum_macros",
- "tokio",
+ "thiserror 2.0.17",
 ]
 
 [[package]]

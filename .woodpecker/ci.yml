@@ -17,9 +17,9 @@ steps:
   - name: Check
     image: rust:latest
     commands:
-      - cargo check --verbose --locked
+      - cargo check --all-features --workspace --verbose --locked
 
   - name: Test
     image: rust:latest
     commands:
-      - cargo test --verbose --locked
+      - cargo test --all-features --workspace --verbose --locked

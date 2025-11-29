@@ -15,7 +15,7 @@ use stravnik_core::{
     icanteen::client::ICanteenClient, meal_data::MealsList, services::MealListService,
     strava::client::StravaClient,
 };
-use stravnik_notifications::ntfy;
+use stravnik_notifications::{formatting::MealsListFormatter, ntfy};
 
 #[cfg(feature = "matrix")]
 use stravnik_notifications::matrix::{self, credentials::MatrixCredentials};

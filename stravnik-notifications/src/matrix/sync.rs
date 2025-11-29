@@ -1,5 +1,5 @@
 use log::info;
-use matrix_sdk::{Client, config::SyncSettings, matrix_auth::MatrixSession};
+use matrix_sdk::{Client, authentication::matrix::MatrixSession, config::SyncSettings};
 
 use crate::{errors::NotificationClientError, matrix::credentials::MatrixCredentials};
 

@@ -1,33 +1,42 @@
 use crate::{
-    args::{self, Args},
-    env::{
-        discord_check_env, icanteen_check_env, matrix_check_env, ntfy_check_env, strava_check_env,
-    },
+    args::Args,
+    env::{icanteen_check_env, ntfy_check_env, strava_check_env},
 };
+
+#[cfg(feature = "matrix")]
+use crate::env::matrix_check_env;
+
+#[cfg(feature = "discord")]
+use crate::env::discord_check_env;
+
 use clap::ValueEnum;
 use serde::Serialize;
 use stravnik_core::{
     icanteen::client::ICanteenClient, meal_data::MealsList, services::MealListService,
     strava::client::StravaClient,
 };
-use stravnik_notifications::{
-    discord,
-    matrix::{self, credentials::MatrixCredentials},
-    ntfy,
-};
+use stravnik_notifications::ntfy;
+
+#[cfg(feature = "matrix")]
+use stravnik_notifications::matrix::{self, credentials::MatrixCredentials};
+
+#[cfg(feature = "discord")]
+use stravnik_notifications::discord;
 
 #[derive(Default, ValueEnum, Clone, Debug, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum NotificationService {
+    #[cfg(feature = "matrix")]
     Matrix,
 
     #[default]
     Ntfy,
 
+    #[cfg(feature = "discord")]
     Discord,
 }
 
-pub async fn pick_service(mut args: args::Args) -> eyre::Result<()> {
+pub async fn pick_service(mut args: Args) -> eyre::Result<()> {
     let meal_d: MealsList;
     match args.meal_list_service {
         MealListService::Strava => {
@@ -50,6 +59,7 @@ pub async fn pick_service(mut args: args::Args) -> eyre::Result<()> {
     }
 
     match args.service {
+        #[cfg(feature = "matrix")]
         NotificationService::Matrix => {
             matrix_check_env(&mut args); // initialize environment variables and error if some are missing
 
@@ -71,6 +81,7 @@ pub async fn pick_service(mut args: args::Args) -> eyre::Result<()> {
                 ntfy::client::NtfyClient::new(args.ntfy_host_url.unwrap(), args.ntfy_room.unwrap());
             ntfy_client.send(meal_d.basic_fmt()).await?;
         }
+        #[cfg(feature = "discord")]
         NotificationService::Discord => {
             discord_check_env(&args);
 
@@ -87,6 +98,7 @@ pub async fn pick_service(mut args: args::Args) -> eyre::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "matrix")]
 fn init_matrix_credentials(args: &Args) -> MatrixCredentials {
     // get username and password from args
     let homeserver = args.matrix_homeserver.clone().unwrap();

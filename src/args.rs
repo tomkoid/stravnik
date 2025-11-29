@@ -23,15 +23,19 @@ pub struct Args {
     pub icanteen_url: Option<String>,
 
     // ----- Matrix configs -----
+    #[cfg(feature = "matrix")]
     #[arg(long)]
     pub matrix_homeserver: Option<String>,
 
+    #[cfg(feature = "matrix")]
     #[arg(long)]
     pub matrix_username: Option<String>,
 
+    #[cfg(feature = "matrix")]
     #[arg(long)]
     pub matrix_password: Option<String>,
 
+    #[cfg(feature = "matrix")]
     #[arg(long)]
     pub matrix_room: Option<String>,
 
@@ -44,5 +48,6 @@ pub struct Args {
 
     // ----- Discord configs -----
     #[arg(long)]
+    #[cfg(feature = "discord")]
     pub discord_webhook_url: Option<String>,
 }

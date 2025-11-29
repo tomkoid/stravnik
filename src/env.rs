@@ -6,6 +6,7 @@ use crate::args::Args;
 
 const STRAVA_CANTEEN_DEFAULT: &str = "0000";
 const NTFY_HOST_URL_DEFAULT: &str = "https://ntfy.sh";
+#[cfg(feature = "matrix")]
 const MATRIX_HOMESERVER_DEFAULT: &str = "https://matrix.org";
 
 pub fn icanteen_check_env(args: &Args) {
@@ -26,6 +27,7 @@ pub fn strava_check_env(args: &mut Args) {
     }
 }
 
+#[cfg(feature = "discord")]
 pub fn discord_check_env(args: &Args) {
     if args.discord_webhook_url.is_none() {
         error!("Missing webhook URL for Discord (DISCORD_WEBHOOK_URL)");
@@ -33,6 +35,7 @@ pub fn discord_check_env(args: &Args) {
     }
 }
 
+#[cfg(feature = "matrix")]
 pub fn matrix_check_env(args: &mut Args) {
     if args.matrix_homeserver.is_none() {
         info!(

@@ -1,4 +1,8 @@
-pub mod discord;
 pub mod errors;
-pub mod matrix;
 pub mod ntfy;
+
+#[cfg(feature = "discord")]
+pub mod discord;
+
+#[cfg(feature = "matrix")]
+pub mod matrix;

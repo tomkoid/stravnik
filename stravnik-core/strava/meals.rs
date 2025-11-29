@@ -1,3 +1,5 @@
+use chrono::DateTime;
+use chrono::Local;
 use log::debug;
 use log::info;
 use serde::Serialize;
@@ -7,7 +9,7 @@ use crate::meal_data::Meal;
 use crate::meal_data::MealsList;
 use crate::services::MealListService;
 use crate::strava::client::StravaClient;
-use crate::utils::today_string;
+use crate::utils::ToDateStringExt;
 
 #[derive(Serialize)]
 struct RequestPayload {
@@ -19,9 +21,9 @@ struct RequestPayload {
 }
 
 impl StravaClient {
-    pub async fn get_meal_data(&self) -> Result<MealsList, MealClientError> {
-        // get today's date
-        let date = today_string();
+    pub async fn get_meal_data(&self, date: DateTime<Local>) -> Result<MealsList, MealClientError> {
+        // convert date to string in format DD.MM.YYYY
+        let date = date.to_date_string();
 
         info!("strava: getting meals from API...");
 

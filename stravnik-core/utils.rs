@@ -1,6 +1,11 @@
-use chrono::{Datelike, Local};
+use chrono::Datelike;
 
-pub fn today_string() -> String {
-    let now = Local::now();
-    format!("{:02}.{:02}.{}", now.day(), now.month(), now.year())
+pub trait ToDateStringExt {
+    fn to_date_string(&self) -> String;
+}
+
+impl<T: chrono::TimeZone> ToDateStringExt for chrono::DateTime<T> {
+    fn to_date_string(&self) -> String {
+        format!("{:02}.{:02}.{}", self.day(), self.month(), self.year())
+    }
 }

@@ -1,6 +1,7 @@
 pub struct ICanteenClient {
     pub canteen_url: String,
 
+    pub date: Option<chrono::DateTime<chrono::Local>>,
     client: reqwest::Client,
 }
 
@@ -10,6 +11,7 @@ impl ICanteenClient {
 
         Self {
             canteen_url,
+            date: None,
             client,
         }
     }

@@ -3,17 +3,19 @@ use crate::{
     icanteen::client::ICanteenClient,
     meal_data::{Meal, MealsList},
     services::MealListService,
-    utils::today_string,
 };
-use chrono::Local;
+use chrono::{DateTime, Local};
 use log::{debug, info};
 use regex::Regex;
 use scraper::{Html, Selector};
 
+use crate::utils::ToDateStringExt;
+
 impl ICanteenClient {
-    pub async fn get_meals(&self) -> Result<MealsList, MealClientError> {
+    pub async fn get_meals(&mut self, date: DateTime<Local>) -> Result<MealsList, MealClientError> {
         info!("icanteen: getting meals...");
 
+        self.date = Some(date);
         let resp = self.fetch_meals().await?;
         let meals = self.parse_meals_response(resp);
 
@@ -27,8 +29,12 @@ impl ICanteenClient {
 
         let document = Html::parse_document(&meals_resp);
 
-        let today = Local::now().date_naive();
-        let today_string = today_string();
+        if self.date.is_none() {
+            debug!("icanteen: date is none, using today as date");
+        }
+
+        let today = self.date.unwrap_or_else(Local::now);
+        let today_string = today.to_date_string();
 
         let target_day_id = format!("day-{}", today.format("%Y-%m-%d"));
 

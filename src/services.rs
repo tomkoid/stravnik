@@ -9,6 +9,7 @@ use crate::env::matrix_check_env;
 #[cfg(feature = "discord")]
 use crate::env::discord_check_env;
 
+use chrono::{DateTime, Local};
 use clap::ValueEnum;
 use serde::Serialize;
 use stravnik_core::{
@@ -36,7 +37,7 @@ pub enum NotificationService {
     Discord,
 }
 
-pub async fn pick_service(mut args: Args) -> eyre::Result<()> {
+pub async fn pick_service(mut args: Args, date: DateTime<Local>) -> eyre::Result<()> {
     let meal_d: MealsList;
     match args.meal_list_service {
         MealListService::Strava => {
@@ -48,13 +49,13 @@ pub async fn pick_service(mut args: Args) -> eyre::Result<()> {
             // fetch the correct s5url needed for the meal list API request
             sc.fetch_s5url().await;
 
-            meal_d = sc.get_meal_data().await?;
+            meal_d = sc.get_meal_data(date).await?;
         }
         MealListService::ICanteen => {
             icanteen_check_env(&args); // setup arguments for icanteen
 
-            let icc = ICanteenClient::new(args.icanteen_url.clone().unwrap());
-            meal_d = icc.get_meals().await?;
+            let mut icc = ICanteenClient::new(args.icanteen_url.clone().unwrap());
+            meal_d = icc.get_meals(date).await?;
         }
     }
 

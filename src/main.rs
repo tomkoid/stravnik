@@ -17,7 +17,8 @@ async fn main() -> eyre::Result<()> {
         .parse_filters(&std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string()))
         .init();
 
-    pick_service(args).await?;
+    let date = chrono::Local::now();
+    pick_service(args, date).await?;
 
     Ok(())
 }

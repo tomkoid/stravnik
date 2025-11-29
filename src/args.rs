@@ -15,6 +15,10 @@ pub struct Args {
     #[arg(required = true)]
     pub service: NotificationService,
 
+    /// Days ahead to fetch meals for
+    #[arg(long, default_value_t = 0)]
+    pub days_ahead: u32,
+
     // ----- Meal list service configs -----
     #[arg(long)]
     pub strava_canteen: Option<String>,

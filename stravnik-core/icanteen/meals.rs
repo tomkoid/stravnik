@@ -137,3 +137,102 @@ impl ICanteenClient {
         Ok(resp)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::TimeZone;
+
+    #[test]
+    fn test_parse_meals_response_with_valid_html() {
+        let mut client = ICanteenClient::new("https://example.com".to_string());
+        let test_date = Local.with_ymd_and_hms(2024, 11, 29, 12, 0, 0).unwrap();
+        client.date = Some(test_date);
+
+        let html = r#"
+            <div class="jidelnicekDen">
+                <div class="jidelnicekTop semibold" id="day-2024-11-29">29. 11. 2024</div>
+                <div class="container">
+                    <div class="smallBoldTitle"><span>Polévka</span></div>
+                    <div class="shrinkedColumn jidelnicekItem"><span style="color: green">1</span></div>
+                    <div class="column jidelnicekItem">Hovězí vývar s nudlemi</div>
+                </div>
+            </div>
+        "#;
+
+        let meals = client.parse_meals_response(html.to_string());
+        assert_eq!(meals.len(), 1);
+        assert_eq!(meals[0].name, "Polévka");
+        assert_eq!(meals[0].course, "1");
+        assert_eq!(meals[0].description, "Hovězí vývar s nudlemi");
+    }
+
+    #[test]
+    fn test_parse_meals_response_empty_html() {
+        let mut client = ICanteenClient::new("https://example.com".to_string());
+        let test_date = Local.with_ymd_and_hms(2024, 11, 29, 12, 0, 0).unwrap();
+        client.date = Some(test_date);
+
+        let html = "<html><body></body></html>";
+        let meals = client.parse_meals_response(html.to_string());
+        assert_eq!(meals.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_meals_response_wrong_date() {
+        let mut client = ICanteenClient::new("https://example.com".to_string());
+        let test_date = Local.with_ymd_and_hms(2024, 11, 29, 12, 0, 0).unwrap();
+        client.date = Some(test_date);
+
+        let html = r#"
+            <div class="jidelnicekDen">
+                <div class="jidelnicekTop semibold" id="day-2024-11-28">28. 11. 2024</div>
+                <div class="container">
+                    <div class="smallBoldTitle"><span>Polévka</span></div>
+                </div>
+            </div>
+        "#;
+
+        let meals = client.parse_meals_response(html.to_string());
+        assert_eq!(meals.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_meals_response_duplicate_filtering() {
+        let mut client = ICanteenClient::new("https://example.com".to_string());
+        let test_date = Local.with_ymd_and_hms(2024, 11, 29, 12, 0, 0).unwrap();
+        client.date = Some(test_date);
+
+        let html = r#"
+            <div class="jidelnicekDen">
+                <div class="jidelnicekTop semibold" id="day-2024-11-29">29. 11. 2024</div>
+                <div class="container">
+                    <div class="smallBoldTitle"><span>Polévka</span></div>
+                    <div class="shrinkedColumn jidelnicekItem"><span style="color: green">1</span></div>
+                    <div class="column jidelnicekItem">Hovězí vývar</div>
+                </div>
+                <div class="container">
+                    <div class="smallBoldTitle"><span>Pizza</span></div>
+                    <div class="shrinkedColumn jidelnicekItem"><span style="color: green">2</span></div>
+                    <div class="column jidelnicekItem">Sýrová pizza</div>
+                </div>
+            </div>
+        "#;
+
+        let meals = client.parse_meals_response(html.to_string());
+        assert_eq!(meals.len(), 2);
+        assert_eq!(meals[0].name, "Polévka");
+        assert_eq!(meals[1].name, "Pizza");
+    }
+
+    #[tokio::test]
+    async fn test_fetch_meals_invalid_config() {
+        let client = ICanteenClient::new("".to_string());
+        let result = client.fetch_meals().await;
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            MealClientError::InvalidConfig(_)
+        ));
+    }
+}

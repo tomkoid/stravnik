@@ -128,3 +128,22 @@ impl StravaClient {
         Ok(json)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_get_meals_without_s5url() {
+        let client = StravaClient::new("12345".to_string());
+        let result = client.get_meals().await;
+        
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(matches!(err, MealClientError::InvalidConfig(_)));
+        assert_eq!(
+            err.to_string(),
+            "Invalid config: s5url is not set, first fetch it with client.fetch_s5url()"
+        );
+    }
+}
